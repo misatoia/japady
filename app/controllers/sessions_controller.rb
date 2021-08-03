@@ -97,19 +97,19 @@ class SessionsController < ApplicationController
       response_json2 = Net::HTTP.get(uri2)
       response_data2 = JSON.parse(response_json2)
       @params2 = response_data2
-      user_id = response_data2['data']['user_id']
+#      user_id = response_data2['data']['user_id']
 
       # アクセストークンを使ってユーザー情報を取得
-      get_info_url="https://graph.facebook.com/#{user_id}?fields=id,name,email&access_token=#{user_token}"
-      params3 = {
-        'fields' => 'id,name,email',
-        'access_token' => user_token
-      }
-      uri3 = URI(get_info_url + '?' + params3.map{|k,v| "#{k}=#{v}"}.join('&'))
-      response_json3 = Net::HTTP.get(uri3)
-      response_data3 = JSON.parse(response_json3)
-      @params3 = response_data3
-
+#      get_info_url="https://graph.facebook.com/#{user_id}?fields=id,name,email&access_token=#{user_token}"
+#      params3 = {
+#        'fields' => 'id,name,email',
+#        'access_token' => user_token
+#      }
+#     uri3 = URI(get_info_url + '?' + params3.map{|k,v| "#{k}=#{v}"}.join('&'))
+#      response_json3 = Net::HTTP.get(uri3)
+#      response_data3 = JSON.parse(response_json3)
+#      @params3 = response_data3
+        @params3 = []
     end
 
 
