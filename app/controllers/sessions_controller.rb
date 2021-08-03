@@ -85,6 +85,7 @@ class SessionsController < ApplicationController
       response_json = Net::HTTP.get(uri)
       response_data = JSON.parse(response_json)
       user_token = response_data['access_token']
+      params = {}
       @params1 = response_data
       
       # アクセストークン情報を取得
@@ -97,6 +98,7 @@ class SessionsController < ApplicationController
       response_json = Net::HTTP.get(uri)
       response_data = JSON.parse(response_json)
 
+      params = {}
       @params2 = response_data
     end
 
