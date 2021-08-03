@@ -85,21 +85,31 @@ class SessionsController < ApplicationController
       response_json = Net::HTTP.get(uri)
       response_data = JSON.parse(response_json)
       user_token = response_data['access_token']
-      params = {}
       @params1 = response_data
       
-      # アクセストークン情報を取得
+      # アクセストークンの検査 -> アクセストークン情報を取得
       debug_token_url='https://graph.facebook.com/oauth/debug_token'
-      params = {
+      params2 = {
         'input_token' => user_token,
         'access_token' => "#{facebook_client_id}|#{ENV['FACEBOOK_API_SECRET']}"
       }
-      uri = URI(debug_token_url + '?' + params.map{|k,v| "#{k}=#{v}"}.join('&'))
-      response_json = Net::HTTP.get(uri)
-      response_data = JSON.parse(response_json)
+      uri2 = URI(debug_token_url + '?' + params2.map{|k,v| "#{k}=#{v}"}.join('&'))
+      response_json2 = Net::HTTP.get(uri2)
+      response_data2 = JSON.parse(response_json2)
+      @params2 = response_data2
+      user_id = response_data2['data']['user_id']
 
-      params = {}
-      @params2 = response_data
+      # アクセストークンを使ってユーザー情報を取得
+      get_info_url="https://graph.facebook.com/#{user_id}?fields=id,name,email&access_token=#{user_token}"
+      params3 = {
+        'fields' => 'id,name,email',
+        'access_token' => user_token
+      }
+      uri3 = URI(get_info_url + '?' + params3.map{|k,v| "#{k}=#{v}"}.join('&'))
+      response_json3 = Net::HTTP.get(uri3)
+      response_data3 = JSON.parse(response_json3)
+      @params3 = response_data3
+
     end
 
 
