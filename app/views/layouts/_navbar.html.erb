@@ -1,0 +1,52 @@
+<header class="mb-4">
+  <nav class="navbar navbar-expand-sm navbar-light bg-light">
+    <a class="navbar-brand" href="<%= dashboard_path %>/"><i class="far fa-thumbs-up"></i>Japady</a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+      <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">ノート/notes</a>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li class="dropdown-item"><%= link_to '一覧/List', notes_path %></li>
+              <li class="dropdown-item"><%= link_to '新規作成', new_note_path %></li>
+            </ul>
+          </li>
+          <% if view_lessons?  %>
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">教室/lessons</a>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li class="dropdown-item"><%= link_to '一覧/List', lessons_path %></li>
+              <% if edit_lessons?  %>
+              <li class="dropdown-diveder"></li>
+              <li class="dropdown-item"><%= link_to '新規作成', new_lesson_path, method: :get %></li>
+              <% end %>
+            </ul>
+          </li>
+          <% end %>
+
+          <% if view_otherusers? %>
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">メンバー/members</a>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li class="dropdown-item"><%= link_to '一覧/List', users_path %></li>
+            </ul>
+          </li>
+          <% end %>
+
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"><%= current_user.nickname %></a>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li class="dropdown-item"><%= link_to 'このサイトについて', about_path %></li>
+              <li class="dropdown-item"><%= link_to 'プロフィール', user_path(current_user) %></li>
+              <li class="dropdown-item"><%= link_to 'Logout', logout_path, method: :delete %></li>
+            </ul>
+          </li>
+    
+      </ul>
+    </div>
+  </nav>
+</header>

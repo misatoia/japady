@@ -1,0 +1,9 @@
+        <div class="card">
+            <img class="card-img-top" src="<%= gravatar_url(user, { size: 200 }) %>" alt=""> 
+            <div class="card-body">
+              <div class="card-title"><%= user.nickname %></div>
+              <hr />
+              <div class="card-text">目的・動機・目標:</div>
+              <p class="card-text"><%= simple_format(user.purpose) %></p>
+            </div>
+        </div>

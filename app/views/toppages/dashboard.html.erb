@@ -1,0 +1,36 @@
+<h2 class="bg-light mb-4"><%= current_user.nickname %> さんのダッシュボード</h2>
+
+<div class="bg-info rounded text-center text-white mb-1">全体アナウンス</div>
+<%= render 'notes/notes', notes: @announcement %>
+
+
+<div class="bg-info rounded text-center text-white mb-1">次回教室の予定</div>
+<%= render 'lessons/lessons', lessons: @lessons %>
+<p class="text-right">
+    <%= link_to '>>他の教室を見る', lessons_path %>
+</p>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="bg-warning rounded text-center text-dark mb-1"><%= current_user.nickname %> さんの最近のノート</div>
+        <%= render 'notes/notes', notes: @mynotes %>
+        <p class="text-right">
+        <%= link_to '>>他のノートを見る', notes_user_path(current_user) %>
+        </p>
+    </div>
+    <div class="col-sm-6">
+        <div class="bg-success rounded text-center text-white mb-1">フォロー中の人の最近のノート</div>
+        <%= render 'notes/notes', notes: @following_notes %>
+    </div>
+    
+</div>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="bg-warning rounded text-center text-dark mb-1"><%= current_user.nickname %> さんのお気に入りノート</div>
+        <%= render 'notes/notes', notes: @favorite_notes %>
+    </div>
+    <div class="col-sm-6">
+        <div class="bg-success rounded text-center text-white mb-1">最近いいね！が多いノート</div>
+        <%= render 'notes/notes', notes: @topliked_notes %>
+    </div>
+    
+</div>

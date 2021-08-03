@@ -1,0 +1,21 @@
+<%= render 'navtabs_notes', user: current_user %>
+<div class="border-right border-left border-bottom p-3">
+  
+  <div class="my-3 d-flex justify-content-end">
+    <%= form_with(model: @note, local: true, method: :get, class: 'form-inline') do |f| %>
+      <%= f.search_field :q, class: 'form-control', size: 40, placeholder: 'ニックネーム、キーワードで検索', value: @keyword %>
+      <%= f.submit '検索する', class: 'btn btn-primary mx-1', name: nil %>
+      <%= link_to '×検索条件をクリア', notes_path, class: 'btn btn-sm btn-light' if @keyword.present? %>
+    <% end %>
+  </div>
+  
+  <% if @keyword.present?  %>
+    <div class="alert alert-light">
+      <%= "「#{@keyword}」 の検索結果：" %>
+    </div>
+  <% end %>
+  
+  <%= render 'notes', notes: @notes %>
+  <%= paginate @notes %>
+  
+</div>

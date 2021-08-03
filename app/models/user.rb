@@ -98,5 +98,23 @@ class User < ApplicationRecord
         self.liking_notes.include?(note)
     end
     
+    # Note
+    def latest_note
+        self.notes.order(created_at: :desc).first
+    end
+
+    def latest_announcement
+        self.notes.where(announce: true).order(updated_at: :desc).first
+    end
+
+    # Lesson
+    def next_lesson
+        self.lessons.where("started_at >= ?", Time.zone.now).order(started_at: :asc).first
+    end
+    
+    
+    def me?(user)
+      self == user
+    end
 
 end

@@ -1,0 +1,112 @@
+<div class="shadow-sm rounded p-5 bgj-white">
+    <div class="text-center">
+        <h1>Edit profile</h1>
+    </div>
+
+    <figure class="figure text-center">
+      <img src="<%= gravatar_url(@user, { size: 200 }) %>"  class="figure-img img-fluid rounded" alt="Gravatar image">
+      <figcaption class="figure-caption">登録Eメールを元に<a href="https://ja.gravatar.com/">Gravatar</a>より画像を読み取っています。お好みの画像を表示する場合にご利用ください。必須ではありません。</figcaption>
+    </figure>
+
+
+    <%= form_with(model: @user, local: true) do |f| %>
+    
+        <%= render 'layouts/error_messages', model: f.object %>
+        <div class="form-group">
+            <%= f.label :name, 'おなまえ/Name' %>
+            <%= f.text_field :name, class: 'form-control', placeholder: '', required: false %>
+        </div>
+        
+        <div class="form-group">
+            <%= f.label :nickname, 'ニックネーム/Nickname *' %>
+            <%= f.text_field :nickname, class: 'form-control', placeholder: '', required: true %>
+        </div>
+        
+        <div class="form-group">
+            <%= f.label :email, 'Eメール/Email *' %>
+            <%= f.email_field :email, class: 'form-control', placeholder: 'name@example.com', required: true  %>
+        </div>
+    
+        <div class="form-group">
+            <%= f.label :area_of_residence, 'お住（す）まいの地域（ちいき）/Area of Residence' %>
+            <%= f.text_field :area_of_residence, class: 'form-control' %>
+        </div>
+    
+        <div class="form-group">
+            <%= f.label :purpose, '日本語を学ぶ目的（もくてき）、動機（どうき）、目標（もくひょう）など / Purpose, reasons, or goal of learning' %>
+            <%= f.text_area :purpose, class: 'form-control' %>
+        </div>
+    
+        <div class="form-group">
+            <%= f.label :password, 'パスワード/Password' %>
+            <%= f.password_field :password, class: 'form-control', placeholder: 'パスワードを変更する場合のみ入力/input when changing password' %>
+        </div>
+    
+        <div class="form-group">
+            <%= f.label :password_confirmation, 'パスワード（確認）/Password Confirmation' %>
+            <%= f.password_field :password_confirmation, class: 'form-control', placeholder: 'パスワード欄のものと同じ/the same password as above' %>
+        </div>
+
+        <% if add_managers? %>
+            <div class="form-check">
+                <%= f.check_box :manager, class: 'form-check-input' %>
+                <%= f.label :manager, '教室代表にする', class: 'form-check-label' %>
+            </div>
+        <% end %>
+        
+        <% if add_admins? %>
+            <div class="form-check">
+                <%= f.check_box :admin, class: 'form-check-input' %>
+                <%= f.label :admin, '管理者にする', class: 'form-check-label' %>
+            </div>
+        <% end %>
+        
+        <p class="text-right">*は必須項目です。/fields with '*' is required</p>        
+    
+        <%= f.submit '更新する/Update', class: 'btn btn-primary btn-block' %>
+
+        <%= link_to '表示画面に戻る', @user %>    
+        
+    <% end %>
+</div>
+<div class="p-5">
+    <div class="mt-3">
+    
+        <%= form_with(model: @user, local: true, method: :delete,  data: { confirm: "[確認]ユーザーのプロフィールとノートを削除します。この操作は元に戻せません。よろしいですか。" } )  do |f| %>
+          <%= f.submit '退会する（プロフィールを削除）/ Quit (delete profile)', class: 'btn btn-danger btn-block' %>
+        <% end %>
+    
+    </div>
+
+    <% if @user.member && add_managers? %>
+    <div class="mt-3">
+      <% if @user.manager %>
+        <%= form_with(model: @user, local: true, method: :put,  data: { confirm: "[確認]本当に教室代表権限を外しますか？" } )  do |f| %>
+          <%= hidden_field_tag :manager, 'false' %>
+          <%= f.submit '教室代表権限を外す', class: 'btn btn-danger btn-block' %>
+        <% end %>
+      <% else %>
+        <%= form_with(model: @user, local: true, method: :put,  data: { confirm: "[確認]本当に教室代表にしますか？" } )  do |f| %>
+          <%= hidden_field_tag :manager, 'true' %>
+          <%= f.submit '教室代表にする', class: 'btn btn-primary btn-block' %>
+        <% end %>
+      <% end %>
+    </div>
+    <% end %>
+
+    <% if @user.member && add_admins? %>
+    <div class="mt-3">
+      <% if @user.admin %>
+        <%= form_with(model: @user, local: true, method: :put,  data: { confirm: "[確認]本当に管理者権限を外しますか？" } )  do |f| %>
+          <%= hidden_field_tag :admin, 'false' %>
+          <%= f.submit '管理者権限を外す', class: 'btn btn-danger btn-block rounded-pill' %>
+        <% end %>
+      <% else %>
+        <%= form_with(model: @user, local: true, method: :put,  data: { confirm: "[確認]本当に管理者にしますか？" } )  do |f| %>
+          <%= hidden_field_tag :admin, 'true' %>
+          <%= f.submit '管理者にする', class: 'btn btn-primary btn-block' %>
+        <% end %>
+      <% end %>
+    </div>
+    <% end %>
+</div>
