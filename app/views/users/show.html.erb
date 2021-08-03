@@ -41,7 +41,7 @@
     <% end %>
     <% if view_otherusers? %>
       <% if @following_members.any? %>
-      <div class="mt-3">フォロー中のメンバー</div>
+        <div class="mt-3">フォロー中のメンバー</div>
         <div class="px-3">
           <% @following_members.each do |member| %>
             <%= link_to "#{member.nickname}さん", member %>
