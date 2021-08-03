@@ -30,20 +30,24 @@
     <div class="mt-3"><%= link_to 'これまでに出席した教室を見る', attended_user_path %></div>
     <% end %>
     <% if view_lessons? %>
-      <div class="mt-3">フォロー中の教室代表</div>
-      <div class="px-3">
-        <% @following_managers.each do |manager| %>
-          <%= link_to "#{manager.nickname}さん", manager %>
-        <% end %>                        
-      </div>
+      <% if @following_managers.any? %>
+        <div class="mt-3">フォロー中の教室代表</div>
+        <div class="px-3">
+          <% @following_managers.each do |manager| %>
+            <%= link_to "#{manager.nickname}さん", manager %>
+          <% end %>                        
+        </div>
+      <% end %>
     <% end %>
     <% if view_otherusers? %>
+      <% if @following_members.any? %>
       <div class="mt-3">フォロー中のメンバー</div>
-      <div class="px-3">
-        <% @following_members.each do |member| %>
-          <%= link_to "#{member.nickname}さん", member %>
-        <% end %>                        
-      </div>
+        <div class="px-3">
+          <% @following_members.each do |member| %>
+            <%= link_to "#{member.nickname}さん", member %>
+          <% end %>                        
+        </div>
+      <% end %>
     <% end %>
 
 </div>
