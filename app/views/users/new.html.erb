@@ -1,0 +1,70 @@
+<div class="col-sm-8 offset-sm-2">
+    <h1 class=" text-center">
+        ようこそ、Japadyへ！<br />
+        Welcome to Japady!
+    </h1>
+
+    <p>
+        ここは「●市」に お住（す）まいで 日本語を 学（まな）ばれる人を 支援（しえん）するためのサイトです。「●（団体名）」の日本語教室に参加（さんか）されている人が利用（りよう）できます。
+    どなたでもユーザー登録（とうろく）はできますが、実際に教室に参加いただき、正しい参加者（さんかしゃ）であることが確認（確認）されるまでは利用できるサービスには限りがあります。
+    </p>
+    
+    <p>
+        This site is to support the residents of "●" city learning Japanese and attending the lessons operated by "●（団体名）".
+    Any person can sign up to this site, however, the service and information provided on this site is limited unless the user attend the lesson and is authorized as the correct user by "●（団体名）".
+    
+    </p>
+
+    <hr />
+    
+    <p>
+        Eメールとパスワードでサインアップできます / You can sign up by email and password.
+    </p>
+</div>
+
+
+<div class="row">
+    <div class="col-sm-6 offset-sm-3">
+        
+         <%= form_with(model: @user, local: true) do |f| %>
+
+            <%= render 'layouts/error_messages', model: f.object %>
+            <div class="form-group">
+                <%= f.label :nickname, 'ニックネーム/Nickname *' %>
+                <%= f.text_field :nickname, class: 'form-control', placeholder: '', required: true %>
+            </div>
+            
+            <div class="form-group">
+                <%= f.label :email, 'Eメール/Email *' %>
+                <%= f.email_field :email, class: 'form-control', placeholder: '', required: true  %>
+            </div>
+        
+            <div class="form-group">
+                <%= f.label :password, 'パスワード/Password *' %>
+                <%= f.password_field :password, class: 'form-control' %>
+            </div>
+        
+            <div class="form-group">
+                <%= f.label :password_confirmation, 'パスワード（確認）/Password Confirmation *' %>
+                <%= f.password_field :password_confirmation, class: 'form-control', placeholder: 'パスワード欄のものと同じ' %>
+            </div>
+
+            <p class="text-right">上欄はすべて必須項目です。/All fields above are required.</p>        
+
+            （任意/Optional）教室のご案内の参考とさせていただきますのでよろしければ以下もご入力ください。あとで入力することもできます。/You can fill the following information for us to consider to make an arrangement of the lesson.
+            <div class="form-group">
+                <%= f.label :area_of_residence, 'お住（す）まいの地域（ちいき）/Area of Residence' %>
+                <%= f.text_field :age, class: 'form-control' %>
+            </div>
+        
+
+            <%= f.submit '登録する/Signup', class: 'btn btn-primary btn-block' %>
+            
+        <% end %>
+    </div>
+</div>
+<br />
+<div class="col-sm-8 offset-sm-2">
+    <p> <%= link_to 'プライバシーポリシーはこちらからご確認いただけます。 Our privacy policy here.', privacypolicy_path %> </p>
+    <p> <%= link_to '既に登録済の方はこちらからログイン If you are already member login from here.', login_path %> </p>
+</div>

@@ -1,0 +1,6 @@
+<%= render 'navtabs_lessons', user: current_user %>
+<div class="border-right border-left border-bottom p-3">
+  <%= render 'lessons', lessons: @lessons %>
+  <%= paginate @lessons %>
+</div>
+

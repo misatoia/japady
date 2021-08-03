@@ -12,41 +12,46 @@ Rails.application.routes.draw do
   post 'login', to: 'sessions#create'
   delete 'logout', to: 'sessions#destroy'
 
-  # Facebook へのログイン
-  
+  get 'test_request', to: 'sessions#test_request'
+  # Facebook関連
+  # Login redirect_uri 用 "/auth/facebook"
+  get 'auth/facebook/callback', to: 'sessions#facebook_callback'
+  # その他対応要件
+#  get 'auth/facebook/deletion', to 'user#facebook_deletion'
+#  get 'auth/facebook/deauthorize', to 'user#facebook_deauthorize'
+
   # LINE へのログイン
+#  get 'auth/line', to: 'sessions#line'
   
-  
+  get 'dashboard', to: 'toppages#dashboard'  
 
   # users
   get 'signup', to: 'users#new'
   resources :users, only: [:index, :show, :create, :edit, :update, :destroy] do
     member do
-      get :followings
-      get :followers
-      get :likes
       get :attended
       get :notes
+      get :auth
     end
   end
     
   # notes
-#  resources :notes, only: [:index, :new, :create, :edit, :update, :destroy]
+  resources :notes, only: [:index, :new, :create, :edit, :update, :destroy]
 
   # lessons
-#  resources :lessons, only: [:index, :new, :create, :edit, :update, :destroy]
+  resources :lessons, only: [:index, :new, :create, :edit, :update, :destroy]
     
   # relationships -- follow
-#  resources :relationships, only: [:create, :destroy]
+  resources :relationships, only: [:create, :destroy]
 
   # favorites
-#  resources :favorites, only: [:create, :destroy]
+  resources :favorites, only: [:create, :destroy]
 
   # likes
-#  resources :likes, only: [:create, :destroy]
+  resources :likes, only: [:create, :destroy]
 
   # attendances
-#  resources :attendances, only: [:create, :destroy]
+  resources :attendances, only: [:create, :destroy]
 
     
 end
