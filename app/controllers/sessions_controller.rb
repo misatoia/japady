@@ -56,18 +56,67 @@ class SessionsController < ApplicationController
   # facebookからの認可コード受け取り
   def facebook_callback
     @params = params
+    if error = params[error_reason]
+    #ユーザーによって拒否された場合
+    # error_reason=user_denied
+    # &error=access_denied
+    # &error_description=Permissions+error.
+
+      flash[:success] = 'SNSログインが許可されませんでした'
+      redirect_to root_url
+      return
+
+    elsif code = params['code']
+
+      require 'net/http'
+  
+      api_base_url='https://graph.facebook.com/v11.0/oauth/access_token'
+      
+      # 送信するパラメータを設定
+      params = {
+        'client_id' => '534002854713007',
+        'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
+        'client_secret' => ENV['FACEBOOK_API_SECRET'],
+        'code' => code
+      }
+      # パラメータを組み立ててURLの後ろに `?keyword=#{keyword}&format=json&...`という形にしてURLとして扱えるようにする
+      uri = URI(api_base_url + '?' + params.map{|k,v| "#{k}=#{v}"}.join('&'))
+      
+      # Rubyの標準ライブラリ処理を用いてHTTPのGETリクエストを送る
+      response_json = Net::HTTP.get(uri)
+      
+      # Rubyの標準ライブラリ処理を用いて受け取ったJSONをパース（分解）してRubyの処理として使えるようにする
+      response_data = JSON.parse(response_json)
+      
+      # 取得したデータを10件まで表示
+      @params = response_data
+    end
+
+
+    #ユーザーによって許可された場合
+
+
+    
+    render :test_facebook
 
     # パラメータ解釈
     
     # 得られた認可コードでアクセストークンを要求
-    
+# GET https://graph.facebook.com/v11.0/oauth/access_token?
+   # client_id={app-id}
+   # &redirect_uri={redirect-uri}
+   # &client_secret={app-secret}
+   # &code={code-parameter}    
+
     # パラメータ解釈
 
-    # 得られたアクセストークンでユーザー情報を要求
+    # 得られたアクセストークンでユーザー情報(メールアドレス、ニックネーム、名前)を要求
     
     # パラメータ解釈
     
-    # データベースにUIDを格納
+    # メールアドレスを照合
+    # 既存なら該当のユーザーのUIDを格納
+    # 新規なら新しいユーザーを
 
     # セッションを開始
     
