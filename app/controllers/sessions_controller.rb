@@ -75,28 +75,26 @@ class SessionsController < ApplicationController
       api_base_url='https://graph.facebook.com/v11.0/oauth/access_token'
       
       # 送信するパラメータを設定
-      params = {
+      params1 = {
         'client_id' => facebook_client_id,
         'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
         'client_secret' => ENV['FACEBOOK_API_SECRET'],
         'code' => code
       }
-      uri = URI(api_base_url + '?' + params.map{|k,v| "#{k}=#{v}"}.join('&'))
+      uri = URI(api_base_url + '?' + params1.map{|k,v| "#{k}=#{v}"}.join('&'))
       response_json = Net::HTTP.get(uri)
-      response_data = JSON.parse(response_json)
-      user_token = response_data['access_token']
-      @params1 = response_data
-      
+      @response_data = JSON.parse(response_json)
+      user_token = @response_data['access_token']
+
       # アクセストークンの検査 -> アクセストークン情報を取得
-      debug_token_url='https://graph.facebook.com/oauth/debug_token'
+      debug_token_url='graph.facebook.com/oauth/debug_token'
       params2 = {
         'input_token' => user_token,
         'access_token' => "#{facebook_client_id}|#{ENV['FACEBOOK_API_SECRET']}"
       }
       uri2 = URI(debug_token_url + '?' + params2.map{|k,v| "#{k}=#{v}"}.join('&'))
       response_json2 = Net::HTTP.get(uri2)
-      response_data2 = JSON.parse(response_json2)
-      @params2 = response_data2
+      @response_data2 = JSON.parse(response_json2)
 #      user_id = response_data2['data']['user_id']
 
       # アクセストークンを使ってユーザー情報を取得
@@ -108,8 +106,7 @@ class SessionsController < ApplicationController
 #     uri3 = URI(get_info_url + '?' + params3.map{|k,v| "#{k}=#{v}"}.join('&'))
 #      response_json3 = Net::HTTP.get(uri3)
 #      response_data3 = JSON.parse(response_json3)
-#      @params3 = response_data3
-        @params3 = []
+      @response_data3 = []
     end
 
 
