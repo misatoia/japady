@@ -56,7 +56,7 @@ class SessionsController < ApplicationController
   # facebookからの認可コード受け取り
   def facebook_callback
     @params = params
-    if error = params[error_reason]
+    if error = params[:error_reason]
     #ユーザーによって拒否された場合
     # error_reason=user_denied
     # &error=access_denied
@@ -66,7 +66,7 @@ class SessionsController < ApplicationController
       redirect_to root_url
       return
 
-    elsif code = params['code']
+    elsif code = params[:code]
 
       require 'net/http'
   
