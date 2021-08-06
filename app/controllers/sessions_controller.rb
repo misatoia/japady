@@ -87,10 +87,8 @@ class SessionsController < ApplicationController
       user_token = @response_data['access_token']
 
       # アクセストークンの検査 -> アクセストークン情報を取得
-      debug_token_url='https://graph.facebook.com/oauth/debug_token'
+      debug_token_url='https://graph.facebook.com/debug_token'
       params2 = {
-        'client_id' => facebook_client_id,
-        'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
         'input_token' => user_token,
         'access_token' => "#{facebook_client_id}|#{ENV['FACEBOOK_API_SECRET']}"
       }
