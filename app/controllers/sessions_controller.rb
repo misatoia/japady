@@ -95,7 +95,7 @@ class SessionsController < ApplicationController
       uri2 = URI(debug_token_url + '?' + params2.map{|k,v| "#{k}=#{v}"}.join('&'))
       response_json2 = Net::HTTP.get(uri2)
       @response_data2 = JSON.parse(response_json2)
-      user_id = response_data2['data']['user_id']
+      user_id = @response_data2['data']['user_id']
 
       # アクセストークンを使ってユーザー情報を取得
       get_info_url="https://graph.facebook.com/#{user_id}"
