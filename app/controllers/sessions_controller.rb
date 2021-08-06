@@ -89,7 +89,7 @@ class SessionsController < ApplicationController
       # アクセストークンの検査 -> アクセストークン情報を取得
       debug_token_url='graph.facebook.com/oauth/debug_token'
       params2 = {
-        'input_token' => user_token,
+        'input_token' => @user_token,
         'access_token' => "#{facebook_client_id}|#{ENV['FACEBOOK_API_SECRET']}"
       }
       uri2 = URI(debug_token_url + '?' + params2.map{|k,v| "#{k}=#{v}"}.join('&'))
