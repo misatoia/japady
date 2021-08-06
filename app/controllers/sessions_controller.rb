@@ -84,7 +84,7 @@ class SessionsController < ApplicationController
       uri = URI(api_base_url + '?' + params1.map{|k,v| "#{k}=#{v}"}.join('&'))
       response_json = Net::HTTP.get(uri)
       @response_data = JSON.parse(response_json)
-#      user_token = @response_data['access_token']
+      user_token = @response_data['access_token']
 
       # アクセストークンの検査 -> アクセストークン情報を取得
 #      debug_token_url='graph.facebook.com/oauth/debug_token'
