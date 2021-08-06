@@ -84,12 +84,12 @@ class SessionsController < ApplicationController
       uri = URI(api_base_url + '?' + params1.map{|k,v| "#{k}=#{v}"}.join('&'))
       response_json = Net::HTTP.get(uri)
       @response_data = JSON.parse(response_json)
-      @user_token = @response_data['access_token']
+      user_token = @response_data['access_token']
 
       # アクセストークンの検査 -> アクセストークン情報を取得
-      debug_token_url='graph.facebook.com/oauth/debug_token'
+      debug_token_url='https://graph.facebook.com/oauth/debug_token'
       params2 = {
-        'input_token' => @user_token,
+        'input_token' => user_token,
         'access_token' => "#{facebook_client_id}|#{ENV['FACEBOOK_API_SECRET']}"
       }
 #      uri2 = URI(debug_token_url + '?' + params2.map{|k,v| "#{k}=#{v}"}.join('&'))
