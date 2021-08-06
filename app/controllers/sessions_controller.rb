@@ -92,8 +92,8 @@ class SessionsController < ApplicationController
         'input_token' => @user_token,
         'access_token' => "#{facebook_client_id}|#{ENV['FACEBOOK_API_SECRET']}"
       }
-      uri2 = URI(debug_token_url + '?' + params2.map{|k,v| "#{k}=#{v}"}.join('&'))
-      response_json2 = Net::HTTP.get(uri2)
+#      uri2 = URI(debug_token_url + '?' + params2.map{|k,v| "#{k}=#{v}"}.join('&'))
+#      response_json2 = Net::HTTP.get(uri2)
 #      @response_data2 = JSON.parse(response_json2)
 #      user_id = response_data2['data']['user_id']
       @response_data2 = []
