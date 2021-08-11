@@ -94,7 +94,7 @@ class SessionsController < ApplicationController
       session[:fb_token_expires_in] = expires_in
       
   
-      @user = User.find_by(email: user_info['email'].downcase!)
+      @user = User.find_by(email: user_info['email'])
       # 既存ユーザーならログイン
       if @user
         # 既存ユーザーかつfacebookログインは初ならfacebook情報をレコードに保管
