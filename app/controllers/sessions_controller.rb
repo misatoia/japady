@@ -101,10 +101,12 @@ class SessionsController < ApplicationController
         if @user.uid.blank?
           @user.uid = user_info['id']
           @user.save()
+          flash[:success] = 'Facebookユーザーと連携しました。'
+          
         end
         session[:user_id] = @user.id
 
-        return true
+        redirect_to dashboard_path
       # 新規ユーザーならユーザー情報を作成してログイン
       else
         @user = User.new
