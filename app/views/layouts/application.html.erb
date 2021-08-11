@@ -18,29 +18,34 @@
   </head>
 
   <body>
+    <div id="app">
+      
       <% if logged_in? %>
-      <%= render 'layouts/navbar' %>
-      <%= render 'layouts/flash_messages' %>
-      <div class="container">
-        <div class="row">
-            <aside class="col-sm-3">
-              <%= render 'layouts/sidebar' %>
-            </aside>
-            <div class="col-sm-9">
-              <%= yield %>
-            </div>
+        <%= render 'layouts/navbar' %>
+        <%= render 'layouts/flash_messages' %>
+        <div class="container pb-5">
+          <div class="row">
+              <aside class="col-sm-3">
+                <%= render 'layouts/sidebar' %>
+              </aside>
+              <div class="col-sm-9">
+                <%= yield %>
+              </div>
+          </div>
         </div>
-      </div>
 
-    <% else  %>
-      <%= render 'layouts/flash_messages' %>
-      <div class="container mt-5">
-        <%= yield %>
-      </div>
+      <% else  %>
+        <%= render 'layouts/flash_messages' %>
+        <div class="container pt-5">
+          <%= yield %>
+        </div>
 
-    <% end  %>
-    <footer>
-      <div class="mt-5 bg-dark text-light text-center"><small><i class="far fa-thumbs-up"></i>Japady / 2021</small></div>
-    </footer>
+      <% end  %>
+
+      <footer>
+        <div class="bg-dark text-light text-center"><small><i class="far fa-thumbs-up"></i>Japady / 2021</small></div>
+      </footer>
+
+    </div>
   </body>
 </html>

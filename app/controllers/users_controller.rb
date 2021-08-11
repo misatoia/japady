@@ -10,8 +10,8 @@ class UsersController < ApplicationController
 
     # メンバー管理権限ある場合
     if add_members?
-      @users = User.where(member: true).order(id: :desc).page(params[:page]).per(10)
-      @guests = User.where(member: [nil, false]).order(created_at: :desc).page(params[:page]).per(10)
+      @users = User.where(member: true).order(id: :desc).page(params[:users_page]).per(10)
+      @guests = User.where(member: [nil, false]).order(created_at: :desc).page(params[:guests_page]).per(10)
 
     # 他のメンバーの閲覧権限がある場合
     elsif view_otherusers?
@@ -91,7 +91,7 @@ class UsersController < ApplicationController
       end
       redirect_to edit_user_path(@user)
 
-    elsif params[:authorized_by_id].present?
+    elsif !params[:authorized_by_id].nil?
       if !add_members?
         flash[:danger] = '承認操作ができません。'
 

@@ -18,40 +18,14 @@ class SessionsController < ApplicationController
 
   def destroy
     session[:user_id] = nil
+    
+    # facebook ログイン情報の削除
+    delete_facebook_session
+
     flash[:success] = 'ログアウトしました'
     redirect_to root_url
-
+    
   end
-
-  def test_request
-    require 'net/http'
-
-    api_base_url='https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706'
-    
-    # 送信するパラメータを設定
-    keyword = 'Ruby'
-    params = {
-      'keyword'       => URI.encode(keyword),
-      'format'        => 'json',
-      'applicationId' => '1052039530918897721',
-      'hits'          => 10,
-      'imageFlag'     => 1
-    }
-    
-    # パラメータを組み立ててURLの後ろに `?keyword=#{keyword}&format=json&...`という形にしてURLとして扱えるようにする
-    uri = URI(api_base_url + '?' + params.map{|k,v| "#{k}=#{v}"}.join('&'))
-    
-    # Rubyの標準ライブラリ処理を用いてHTTPのGETリクエストを送る
-    response_json = Net::HTTP.get(uri)
-    
-    # Rubyの標準ライブラリ処理を用いて受け取ったJSONをパース（分解）してRubyの処理として使えるようにする
-    response_data = JSON.parse(response_json)
-    
-    # 取得したデータを10件まで表示
-    @result = response_data['Items'].first(10)
-
-  end
-
 
   # facebookからの認可コード受け取り
   def facebook_callback
@@ -63,84 +37,185 @@ class SessionsController < ApplicationController
     # &error_description=Permissions+error.
 
       flash[:danger] = 'SNSログインが許可されませんでした'
-      flash[:danger] = params
+      flash[:danger] += params #デバッグ用
       redirect_to root_url
       return
 
     elsif code = params[:code]
 
+      # stateの確認 CSRF対策
+      if params[:state] != session[:facebook_state]
+        return
+      end
+      # codeを入手できたので削除
+      session[:fb_state] = nil
+
       require 'net/http'
       facebook_client_id = '534002854713007'
   
-      api_base_url='https://graph.facebook.com/v11.0/oauth/access_token'
-      
-      # 送信するパラメータを設定
-      params1 = {
+      # １．コールバックで得た認可コードをアクセストークンと交換
+      uri = URI('https://graph.facebook.com/v11.0/oauth/access_token' + '?' + 
+      ({
         'client_id' => facebook_client_id,
         'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
         'client_secret' => ENV['FACEBOOK_API_SECRET'],
         'code' => code
-      }
-      uri = URI(api_base_url + '?' + params1.map{|k,v| "#{k}=#{v}"}.join('&'))
-      response_json = Net::HTTP.get(uri)
-      @response_data = JSON.parse(response_json)
-      user_token = @response_data['access_token']
+      }).map{|k,v| "#{k}=#{v}"}.join('&'))
+      
+      token_info = JSON.parse(Net::HTTP.get(uri))
+      user_token = token_info['access_token']
+      expires_in = token_info['expires_in']
+      @response_data = token_info #デバッグ用
 
-      # アクセストークンの検査 -> アクセストークン情報を取得
-      debug_token_url='https://graph.facebook.com/debug_token'
-      params2 = {
+      # ２．アクセストークンの検査 -> アクセストークン情報を取得
+      uri2 = URI('https://graph.facebook.com/debug_token' + '?' + 
+      ({
         'input_token' => user_token,
         'access_token' => "#{facebook_client_id}|#{ENV['FACEBOOK_API_SECRET']}"
-      }
-      uri2 = URI(debug_token_url + '?' + params2.map{|k,v| "#{k}=#{v}"}.join('&'))
-      response_json2 = Net::HTTP.get(uri2)
-      @response_data2 = JSON.parse(response_json2)
-      user_id = @response_data2['data']['user_id']
+      }).map{|k,v| "#{k}=#{v}"}.join('&'))
 
-      # アクセストークンを使ってユーザー情報を取得
-      get_info_url="https://graph.facebook.com/#{user_id}"
-      params3 = {
+      token_info_checked = JSON.parse(Net::HTTP.get(uri2))
+      user_id = token_info_checked['data']['user_id']
+      @response_data2 = token_info_checked #デバッグ用
+
+      # ３．アクセストークンを使ってユーザー情報を取得
+      uri3 = URI("https://graph.facebook.com/#{user_id}" + '?' + 
+      ({
         'fields' => 'id,name,email',
         'access_token' => user_token
-      }
-      uri3 = URI(get_info_url + '?' + params3.map{|k,v| "#{k}=#{v}"}.join('&'))
-      response_json3 = Net::HTTP.get(uri3)
-      @response_data3 = JSON.parse(response_json3)
-#      @response_data3 = []
+      }).map{|k,v| "#{k}=#{v}"}.join('&'))
+      
+      user_info = JSON.parse(Net::HTTP.get(uri3))
+      @response_data3 = user_info # デバッグ用
+
+      # ログイン処理＝セッション変数への格納
+      session[:fb_uid] = user_id
+      session[:fb_user_token] = user_token
+      session[:fb_token_expires_in] = expires_in
+      
+  
+      @user = User.find_by(email: user_info['email'].downcase!)
+      # 既存ユーザーならログイン
+      if @user
+        # 既存ユーザーかつfacebookログインは初ならfacebook情報をレコードに保管
+        if @user.uid.blank?
+          @user.uid = user_info['id']
+          @user.save()
+        end
+        session[:user_id] = @user.id
+
+        return true
+      # 新規ユーザーならユーザー情報を作成してログイン
+      else
+        @user = User.new
+        @user.uid = user_info['id']
+        @user.name = user_info['name']
+        @user.nickname = user_info['name']
+        @user.email = user_info['email']
+        @user.password = SecureRandom.alphanumeric(20)
+        @user.save()
+
+        if User.count == 0
+          @user.member = true
+          @user.manager = true
+          @user.admin = true
+        end    
+        
+        flash[:success] = 'Facebookユーザーを登録しました。'
+        # begin session
+        session[:user_id] = @user.id
+
+#        render :test_facebook
+
+        redirect_to @user
+
+      end
+
     end
-
-
-    #ユーザーによって許可された場合
-
-
     
-    render :test_facebook
+    # *** OAutuのstate パラメータ作成 => 済
+    # *** session変数へのトークン、期限、UID格納 => 済
+    # *** UserモデルのSNSログイン用のID格納用カラム追加 => 済
+    # *** 既存ユーザーの場合のユーザー情報更新 => 済
+    # *** 新規ユーザーの場合のユーザー情報作成 => 済
+    # *** Deauthorize Callback URL, Data Deletion Request URL の対応
 
-    # パラメータ解釈
-    
-    # 得られた認可コードでアクセストークンを要求
-# GET https://graph.facebook.com/v11.0/oauth/access_token?
-   # client_id={app-id}
-   # &redirect_uri={redirect-uri}
-   # &client_secret={app-secret}
-   # &code={code-parameter}    
-
-    # パラメータ解釈
-
-    # 得られたアクセストークンでユーザー情報(メールアドレス、ニックネーム、名前)を要求
-    
-    # パラメータ解釈
-    
     # メールアドレスを照合
     # 既存なら該当のユーザーのUIDを格納
     # 新規なら新しいユーザーを
 
     # セッションを開始
+    # フェイスブックからのログアウト方法
+    # フェイスブックでのログイン状況（毎リクエスト時？）
+
     
   end
   
-  private
+  def facebook_deletion
+    # facebookのアプリ削除リクエスト対応
+    # https://developers.facebook.com/docs/development/create-an-app/app-dashboard/data-deletion-callback
+
+    if params[:signed_request] && verify_signature(params[:signed_request])
+      signed_request = decode_data(params[:signed_request])
+      user = User.find_by(uid: signed_request['user_id'])
+      confirmation_code = "japady#{user.id}"
+      data = {
+        'url' => "https://japady.herokuapp.com/auth/facebook/afterdeletion?confirmation_code=#{confirmation_code}",
+        'confirmation_code' => confirmation_code
+      }
+      
+      render json: JSON.generate(data)
+
+      # ユーザのデータを削除
+      #user.destroy
+
+
+    else
+      render status: 500, json: { status: 500, message: 'Internal Server Error' }
+    end
+
+  # 1. Split the signed request into two parts delineated by a '.' character (eg. 238fsdfsd.oijdoifjsidf899)
+  # 2. Decode the first part - the encoded signature - from base64url
+  # 3. Decode the second part - the payload - from base64url and then decode the resultant JSON object
+  # 4. request に対しての返答
   
+  end
+  
+  def facebook_deauthorize
+     # 署名リクエストの確認
+     # ユーザーのフェイスブック関連データを削除
+     # uidの削除のみで良い？
+  end
+
+  def facebook_after_deletion
+    delete_facebook_session
+    @confirmation_code = params[:confirmation_code]
+  end
+    
+
+  private
+
+  # 署名の確認
+  def verify_signature(str)
+    encoded_sig, payload = str.split('.')
+    sig = base64_url_decode(encoded_sig)
+    expected_sig = Digest::SHA256.digest(ENV['FACEBOOK_API_SECRET'], payload)
+    sig == expected_sig
+  end
+
+  # データの取得
+  def decode_data(str)
+    encoded_sig, payload = str.split('.')
+    data = JSON.decode(base64_url_decode(payload))
+  end
+
+  def base64_url_decode(str)
+    encoded_str =  str.gsub('-','+').gsub('_','/')
+    encoded_str += '=' while !(encoded_str.size % 4).zero?
+    Base64.decode64(encoded_str)
+  end
+
+
   def login(email, password)
     @user = User.find_by(email: email)
     if @user && @user.authenticate(password)
@@ -151,6 +226,17 @@ class SessionsController < ApplicationController
       #ログイン失敗
       return false
     end
+  end
+  
+  def delete_facebook_session
+
+    session[:fb_uid] = nil
+    session[:fb_user_token] = nil
+    session[:fb_token_expires_in] = nil
+    session[:fb_state] = nil
+
+    session[:facebook_state] = nil #これは削除できたらなくす
+
   end
   
 end

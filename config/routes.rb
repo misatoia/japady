@@ -3,7 +3,6 @@ Rails.application.routes.draw do
   # toppages
   root to: 'toppages#index'
 
-  # 使い方あってる？？
   get 'privacypolicy', to: 'toppages#privacypolicy'
   get 'about', to: 'toppages#about'
     
@@ -12,18 +11,18 @@ Rails.application.routes.draw do
   post 'login', to: 'sessions#create'
   delete 'logout', to: 'sessions#destroy'
 
-  get 'test_request', to: 'sessions#test_request'
   # Facebook関連
   # Login redirect_uri 用 "/auth/facebook"
   get 'auth/facebook/callback', to: 'sessions#facebook_callback'
   # その他対応要件
-#  get 'auth/facebook/deletion', to 'user#facebook_deletion'
-#  get 'auth/facebook/deauthorize', to 'user#facebook_deauthorize'
+  post 'auth/facebook/deletion', to: 'session#facebook_deletion'
+  post 'auth/facebook/deauthorize', to: 'session#facebook_deauthorize'
+  get 'auth/facebook/afterdeletion', to: 'sessions#facebook_after_deletion'
 
   # LINE へのログイン
 #  get 'auth/line', to: 'sessions#line'
   
-  get 'dashboard', to: 'toppages#dashboard'  
+  get 'dashboard', to: 'toppages#dashboard'
 
   # users
   get 'signup', to: 'users#new'

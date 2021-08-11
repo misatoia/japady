@@ -61,7 +61,7 @@
         <% end %>
     </tbody>
 </table>
-<%= paginate @users %>
+<%= paginate @users, param_name: 'users_page' %>
 <% end %>
 
 <% if @guests.any? && add_members? %>
@@ -86,5 +86,5 @@
 </table>
 
 
-<%= paginate @guests %>
+<%= paginate @guests, param_name: 'guests_page'%>
 <% end %>

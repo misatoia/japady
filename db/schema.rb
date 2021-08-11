@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_07_060826) do
+ActiveRecord::Schema.define(version: 2021_08_10_134353) do
 
   create_table "attendances", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "user_id"
@@ -83,6 +83,7 @@ ActiveRecord::Schema.define(version: 2021_06_07_060826) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "nickname"
+    t.string "uid"
     t.index ["authorized_by_id"], name: "index_users_on_authorized_by_id"
   end
 

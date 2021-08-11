@@ -13,3 +13,18 @@
  *= require_tree .
  *= require_self
  */
+
+#app     {
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 20px;/*←footerの高さ*/
+    box-sizing: border-box;/*←全て含めてmin-height:100vhに*/
+}
+
+footer div {
+    width: 100%;
+    padding: 5px 0;
+
+    position: absolute;/*←絶対位置*/
+    bottom: 0; /*下に固定*/
+}

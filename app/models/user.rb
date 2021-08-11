@@ -11,7 +11,6 @@ class User < ApplicationRecord
 
     has_secure_password
 
-
     # as the owner
     has_many :lessons, dependent: :destroy
     has_many :notes, dependent: :destroy
@@ -20,6 +19,11 @@ class User < ApplicationRecord
     # as an attendee
     has_many :attendances
     has_many :attending_lessons, through: :attendances, source: :lesson, dependent: :destroy
+    
+    def snslogin?
+#      !self.uid.empty?
+      !self.nickname.empty?
+    end
     
     def attend(lesson)
         self.attendances.find_or_create_by(lesson_id: lesson.id)
