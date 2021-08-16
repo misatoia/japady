@@ -40,6 +40,10 @@ module SessionsHelper
       manager? || admin?
   end
 
+  def edit_otherlessons?
+      admin?
+  end
+
   def view_otherusers?
       member? || manager? || admin?
   end

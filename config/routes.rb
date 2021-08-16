@@ -31,6 +31,7 @@ Rails.application.routes.draw do
       get :attended
       get :notes
       get :auth
+      get :lessons
     end
   end
     
@@ -39,6 +40,7 @@ Rails.application.routes.draw do
 
   # lessons
   resources :lessons, only: [:index, :new, :create, :edit, :update, :destroy]
+  get 'coming_lessons', to: 'lessons#coming_lessons'
     
   # relationships -- follow
   resources :relationships, only: [:create, :destroy]

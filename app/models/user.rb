@@ -21,8 +21,7 @@ class User < ApplicationRecord
     has_many :attending_lessons, through: :attendances, source: :lesson, dependent: :destroy
     
     def snslogin?
-#      !self.uid.empty?
-      !self.nickname.empty?
+      self.uid?
     end
     
     def attend(lesson)
@@ -116,9 +115,5 @@ class User < ApplicationRecord
         self.lessons.where("started_at >= ?", Time.zone.now).order(started_at: :asc).first
     end
     
-    
-    def me?(user)
-      self == user
-    end
 
 end

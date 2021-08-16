@@ -3,23 +3,20 @@ class AttendancesController < ApplicationController
 
   def create
     if view_lessons?
-      lesson = Lesson.find(params[:lesson_id])
 
-      if edit_lessons? && params[:attendance].present? && params[:attendance][:email].present?
-        user = User.find_by(email: params[:attendance][:email])
-        if user.present? && user.member
-          user.attend(lesson)
-          flash[:success] = "#{lesson.name}のレッスンの参加予定者に#{user.nickname}さんを登録しました。"
-        else
-          flash[:warning] = "#{params[:attendance][:email]}で登録している正規ユーザーを確認できませんでした。"
-        end
-      else
+      if params[:lesson_id] && lesson = Lesson.find(params[:lesson_id])
         current_user.attend(lesson)
-        flash[:success] = "#{lesson.name}のレッスンの参加予定者に登録しました。"
+        flash[:success] = "#{lesson.name}の教室の参加予定者に登録しました。"
+      elsif edit_lessons? && attendance = Attendance.new(attendance_params)
+        if attendance.save
+          flash[:success] = "#{attendance.lesson.name}の教室の参加予定者に#{attendance.user.nickname}さんを登録しました。"
+        else
+          flash[:warning] = "教室の参加登録ができませんでした。"
+        end
       end
       redirect_back(fallback_location: dashboard_path)
     else
-      redirect_to dashboard_path      
+      redirect_to dashboard_path
     end
   end
 
@@ -39,6 +36,12 @@ class AttendancesController < ApplicationController
       redirect_to dashboard_path      
     end
 
+  end
+
+  private
+  
+  def attendance_params
+      params.require(:attendance).permit(:user_id, :lesson_id)
   end
 
 end

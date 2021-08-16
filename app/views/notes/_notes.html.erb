@@ -1,5 +1,5 @@
 
-<% if notes && notes.any? %>
+<% if notes&.any? %>
     <% notes.each do |note| %>
         <div class="card shadow-sm mb-3 bg-white rounded">
             <div class="card-header btn-toolbar">
@@ -26,8 +26,6 @@
                         <% if note.user != current_user %>
                             <% if !current_user.liking?(note) %>
                                     &nbsp; <%= link_to "いいね！する", likes_path(note.likes.build, note_id: note.id), method: :post, class: "btn btn-sm btn-primary badge rounded-pill" %>
-                            <% else %>
-                                    &nbsp; <%= link_to "いいね！をやめる（テスト用）", like_path(note.likes.find_by(user_id: current_user.id)), method: :delete, class: "btn btn-sm btn-danger badge rounded-pill" %>
                             <% end %>
                         <% end %>
                     </div>

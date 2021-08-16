@@ -1,7 +1,6 @@
-<h2 class="bg-light mb-4">メンバー一覧</h2>
 
 <% if @managers.any? %>
-<div class="bg-info rounded text-center text-white">教室代表</div>
+<div class="bg-info rounded text-center text-white">教室代表 (<%= @managers_count %>人)</div>
 <table class="table table-bordered rounded">
     <thead>
         <tr>
@@ -29,11 +28,11 @@
         <% end %>
     </tbody>
 </table>
-<%= paginate @managers %>
+<%= paginate @managers, param_name: 'managers_page' %>
 <% end %>
 
 <% if @users.any? %>
-<div class="bg-info rounded text-center text-white">メンバー</div>
+<div class="bg-info rounded text-center text-white">メンバー (<%= @users_count %>人)</div>
 <table class="table table-bordered rounded">
     <thead>
         <tr>
@@ -65,7 +64,7 @@
 <% end %>
 
 <% if @guests.any? && add_members? %>
-<div class="bg-warning rounded text-center">未承認ユーザー</div>
+<div class="bg-warning rounded text-center">未承認ユーザー (<%= @guests_count %>人)</div>
 <table class="table table-bordered rounded">
     <thead>
         <tr>

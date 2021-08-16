@@ -3,9 +3,11 @@
   <div class="card-body">
     <div class="card-title"><%= current_user.nickname %></div>
     <div class="card-text">
-      <div class="border p-2">
-          <%= simple_format(current_user.purpose) %>
-      </div>
+      <% if !!current_user.purpose %>
+        <div class="border p-2">
+            <%= simple_format(current_user.purpose) %>
+        </div>
+      <% end %>
       <% if !member? %>
         <div class="text-danger">
           <p>あなたはこのサービスの正しい利用者としてまだ確認されていません。</p>

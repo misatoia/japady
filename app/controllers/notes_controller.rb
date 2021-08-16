@@ -22,6 +22,7 @@ class NotesController < ApplicationController
 
   def new
     @note = current_user.notes.new
+    @title = "新規ノート作成 / New note"
   end
 
   def create
@@ -38,6 +39,7 @@ class NotesController < ApplicationController
 
   def edit
     @note = Note.find(params[:id])
+    @title = "ノートの編集 / Edit note"
     # 権限チェック
     unless @note.user = current_user || edit_othernotes?
       redirect_back(fallback_location: dashboard_path)

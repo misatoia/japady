@@ -15,9 +15,15 @@ class ToppagesController < ApplicationController
     num_of_announcement = 3
     num_of_next_lesson = 1
     
+    @title = "ダッシュボード"
 
     if view_lessons?
-      @lessons = current_user.attending_lessons.order(started_at: :asc).where('started_at > ?', Time.zone.now).limit(num_of_next_lesson)
+      @lessons = current_user.attending_lessons
+        .joins(:user)
+        .where(users: {manager: true})
+        .order(started_at: :asc)
+        .where('started_at > ?', Time.zone.now)
+        .limit(num_of_next_lesson)
     end
 
     @mynotes  = current_user.notes.order(updated_at: :desc).where('created_at > ?', Time.zone.now.ago(days_of_recent.days))

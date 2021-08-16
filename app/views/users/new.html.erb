@@ -61,10 +61,15 @@
             <%= f.submit '登録する/Signup', class: 'btn btn-primary btn-block' %>
             
         <% end %>
+
+
     </div>
 </div>
-<br />
-<div class="col-sm-8 offset-sm-2">
-    <p> <%= link_to 'プライバシーポリシーはこちらからご確認いただけます。 Our privacy policy here.', privacypolicy_path %> </p>
-    <p> <%= link_to '既に登録済の方はこちらからログイン If you are already member login from here.', login_path %> </p>
+
+<hr />
+
+<div class="col-sm-8 offset-sm-2 text-center mb-5">
+    <div><small> <%= link_to 'プライバシーポリシーはこちらからご確認いただけます。 Our privacy policy here.', privacypolicy_path %> </small></div>
+    <div><small> <%= link_to '既に登録済の方はこちらからログイン If you are already member login from here.', login_path %> </small></div>
 </div>
+

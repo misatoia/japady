@@ -29,6 +29,9 @@
                 <%= render 'layouts/sidebar' %>
               </aside>
               <div class="col-sm-9">
+                <% if @title %>
+                  <h2 class="bg-light mb-4"><%= @title %></h2>
+                <% end %>
                 <%= yield %>
               </div>
           </div>
@@ -43,7 +46,7 @@
       <% end  %>
 
       <footer>
-        <div class="bg-dark text-light text-center"><small><i class="far fa-thumbs-up"></i>Japady / 2021</small></div>
+        <div class="bg-dark text-light text-center"><small><a href="<%= root_url %>" class="text-light"><i class="far fa-thumbs-up"></i>Japady / 2021</a></small></div>
       </footer>
 
     </div>

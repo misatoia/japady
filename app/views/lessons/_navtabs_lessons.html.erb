@@ -1,8 +1,0 @@
-<ul class="nav nav-tabs text-center">
-  <li class="nav-item w-50">
-    <a class="nav-link <%= current_page?(lessons_path) ? 'active' : 'bg-light border-bottom' %>" href="<%= lessons_path %>">予定されている教室</a>
-  </li>
-  <li class="nav-item w-50">
-    <a class="nav-link <%= current_page?(attended_user_path(user)) ? 'active' : 'bg-light border-bottom' %>" href="<%= attended_user_path(user) %>"><%= "#{user.nickname}さんが" if user != current_user %>これまで出席した教室</a>
-  </li>
-</ul>

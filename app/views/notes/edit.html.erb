@@ -1,5 +1,3 @@
-<h2 class="bg-light mb-4">ノート編集</h2>
-
 <%= render 'layouts/error_messages', model: @note %>
 
 <div class="row shadow mt-5 bg-white rounded">
@@ -8,7 +6,7 @@
     
         <div class="mt-3">
             <%= form_with(model: @note, local: true, method: :delete, data: { confirm: "[確認]ノートを削除します。この操作は元に戻せません。よろしいですか。" }) do |f| %>
-                <%= f.submit 'このノートを削除する/Delete this note', class: 'btn btn-danger btn-block' %>
+                <%= f.submit 'このノートを削除する/Delete this note', class: 'btn btn-danger btn-block', disabled: (@note.likes.size + @note.favorites.size > 0 ) && !edit_othernotes? %>
                 <small class="">いいね又はお気に入りをされている場合は削除できません。</small>
             <% end %>
         </div>
@@ -16,7 +14,10 @@
     </div>
     <div class="col-sm-4 p-4">
         <div>
-            <i class="far fa-thumbs-up"></i> <%= "#{@note.likes.count}人" %>
+            <i class="far fa-thumbs-up"></i> <%= "#{@note.likes.size}人" %>
+        </div>
+        <div>
+            <%= @note.favorites.size > 0 ? "★ #{@note.favorites.size}人" : "" %>
         </div>
         <div class="mt-5">
           <div><%= "#{@note.created_at.strftime("%Y-%m-%d %H:%M")} 作成" %></div>

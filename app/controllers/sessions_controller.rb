@@ -41,6 +41,9 @@ class SessionsController < ApplicationController
       redirect_to root_url
       return
 
+    # ＊＊メールアドレスの閲覧許可が得られなかった場合の処理
+    # ＊＊通常のパスワードログイン後にユーザーのプロフィール画面で再リクエスト画面を出す？（ログインしているからもうメリット無い）
+
     elsif code = params[:code]
 
       # stateの確認 CSRF対策
@@ -184,6 +187,24 @@ class SessionsController < ApplicationController
   end
   
   def facebook_deauthorize
+    if params[:signed_request] && verify_signature(params[:signed_request])
+      signed_request = decode_data(params[:signed_request])
+      user = User.find_by(uid: signed_request['user_id'])
+      confirmation_code = "japady#{user.id}"
+      data = {
+        'url' => "https://japady.herokuapp.com/auth/facebook/afterdeletion?confirmation_code=#{confirmation_code}",
+        'confirmation_code' => confirmation_code
+      }
+      
+      render json: JSON.generate(data)
+
+      # ユーザのデータを削除
+      #user.destroy
+
+
+    else
+      render status: 500, json: { status: 500, message: 'Internal Server Error' }
+    end
      # 署名リクエストの確認
      # ユーザーのフェイスブック関連データを削除
      # uidの削除のみで良い？
