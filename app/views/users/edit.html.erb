@@ -92,12 +92,12 @@
       <% if @user.admin? %>
         <%= form_with(model: @user, local: true, method: :put,  data: { confirm: "[確認]本当に管理者権限を外しますか？" } )  do |f| %>
           <%= hidden_field_tag :admin, 'false' %>
-          <%= f.submit '管理者権限を外す', class: 'btn btn-danger btn-block rounded-pill', disabled: @user == current_user %>
+          <%= f.submit '管理者権限を外す', class: 'btn btn-danger btn-block', disabled: @user == current_user %>
         <% end %>
       <% else %>
         <%= form_with(model: @user, local: true, method: :put,  data: { confirm: "[確認]本当に管理者にしますか？" } )  do |f| %>
           <%= hidden_field_tag :admin, 'true' %>
-          <%= f.submit '管理者にする', class: 'btn btn-primary btn-block rounded-pill' %>
+          <%= f.submit '管理者にする', class: 'btn btn-primary btn-block' %>
         <% end %>
       <% end %>
     </div>

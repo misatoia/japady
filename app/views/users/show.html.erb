@@ -69,14 +69,14 @@
   <% end %>
   <% if add_members? %>
     <div class="mt-3">
-      <% if @user.member? %>
+      <% if @user.member? && @authorizer %>
         <%= form_with(model: @user, local: true, method: :put,  data: { confirm: "[確認]本当に非正規ユーザーとしますか？" } )  do |f| %>
           <%= hidden_field_tag :authorized_by_id, '' %>
           <%= hidden_field_tag :member, 'false' %>
           <%= f.submit '非正規ユーザーに戻す', class: 'btn btn-danger btn-block', disabled: @user == current_user %>
         <% end %>
         <small>
-          <%= "承認者：#{@authorizer.nickname}　承認日時：#{@user.authorized_at.strftime("%Y-%m-%d %H:%M:%S")}" %>
+          <%= "承認者：#{@authorizer.nickname}　承認日時：#{@user.authorized_at.strftime("%Y-%m-%d %H:%M:%S")}" if @authorizer %>
         </small>
       <% else %>
         <%= form_with(model: @user, local: true, method: :put,  data: { confirm: "[確認]正規ユーザーとして承認しますか？正規ユーザーはレッスン、他のユーザー、他の人のノートを閲覧できるようになります。" } )  do |f| %>

@@ -39,7 +39,7 @@ class UsersController < ApplicationController
 
       @following_members = @user.followings.where(manager: [false, nil], member: true)
       @following_managers = @user.followings.where(manager: true, member: true)
-      @authorizer = User.find(@user.authorized_by_id)
+      @authorizer = User.find_by(id: @user.authorized_by_id)
 
     elsif current_user != @user
       redirect_to current_user
