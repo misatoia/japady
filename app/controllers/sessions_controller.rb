@@ -90,20 +90,28 @@ class SessionsController < ApplicationController
       session[:fb_user_token] = user_token
       session[:fb_token_expires_in] = expires_in
 
-      @user = User.find_by(email: user_info['email'])
-      # 既存ユーザーならログイン
-      if @user
+      if @user = User.find_by(uid: user_id)
+
+        # 既存ユーザーならログイン
+        session[:user_id] = @user.id
+        redirect_to dashboard_path
+        
+      elsif @user = User.find_by(email: user_info['email'])
+
         # 既存ユーザーかつfacebookログインは初ならfacebook情報をレコードに保管
         if @user.uid.blank?
           @user.uid = user_info['id']
           @user.save
           flash[:success] = 'Facebookユーザーと連携しました。'
-
         end
+        # メールアドレスで検索して、別のUIDを保持しているケースはあるか。
+          # 空であるケース
+          # 既存ユーザーが別のアドレスのfacebookログインを使いたい場合 facebookのメールアドレスは無視してuidだけ格納する
+          # 次回から１つめの分岐でログインできる。
+        
         session[:user_id] = @user.id
-
         redirect_to dashboard_path
-      # 新規ユーザーならユーザー情報を作成してログイン
+
       else
         @user = User.new
         @user.uid = user_info['id']
@@ -111,7 +119,6 @@ class SessionsController < ApplicationController
         @user.nickname = user_info['name']
         @user.email = user_info['email']
         @user.password = SecureRandom.alphanumeric(20)
-        @user.save
 
         if User.count.zero?
           @user.member = true
@@ -119,11 +126,13 @@ class SessionsController < ApplicationController
           @user.admin = true
         end
 
+        @user.save
+
         flash[:success] = 'Facebookユーザーを登録しました。'
         # begin session
         session[:user_id] = @user.id
 
-        #        render :test_facebook
+        # render :test_facebook
 
         redirect_to @user
 
