@@ -72,11 +72,11 @@ class SessionsController < ApplicationController
       }.map { |k, v| "#{k}=#{v}" }.join('&'))
 
       token_info_checked = JSON.parse(Net::HTTP.get(uri2))
-      user_id = token_info_checked['data']['user_id']
+      uid = token_info_checked['data']['user_id']
       @response_data2 = token_info_checked # デバッグ用
 
       # ３．アクセストークンを使ってユーザー情報を取得
-      uri3 = URI("https://graph.facebook.com/#{user_id}?" +
+      uri3 = URI("https://graph.facebook.com/#{uid}?" +
       {
         'fields' => 'id,name,email',
         'access_token' => user_token
@@ -86,11 +86,11 @@ class SessionsController < ApplicationController
       @response_data3 = user_info # デバッグ用
 
       # ログイン処理＝セッション変数への格納
-      session[:fb_uid] = user_id
+      session[:fb_uid] = uid
       session[:fb_user_token] = user_token
       session[:fb_token_expires_in] = expires_in
 
-      if @user = User.find_by(uid: user_id)
+      if @user = User.find_by(uid: uid)
 
         # 既存ユーザーならログイン
         session[:user_id] = @user.id
@@ -100,7 +100,7 @@ class SessionsController < ApplicationController
 
         # 既存ユーザーかつfacebookログインは初ならfacebook情報をレコードに保管
         if @user.uid.blank?
-          @user.uid = user_info['id']
+          @user.uid = uid
           @user.save
           flash[:success] = 'Facebookユーザーと連携しました。'
         end
@@ -114,7 +114,7 @@ class SessionsController < ApplicationController
 
       else
         @user = User.new
-        @user.uid = user_info['id']
+        @user.uid = uid
         @user.name = user_info['name']
         @user.nickname = user_info['name']
         @user.email = user_info['email']
@@ -135,6 +135,7 @@ class SessionsController < ApplicationController
   
           redirect_to @user
         else
+          @mydata = user_info['id', 'name', 'email']
           render :test_facebook
           
         end
