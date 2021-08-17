@@ -132,12 +132,10 @@ class SessionsController < ApplicationController
           # begin session
           session[:user_id] = @user.id
   
-          # render :test_facebook
   
           redirect_to @user
         else
-          flash[:danger] = 'Facebookユーザーを登録できませんでした。'
-          flash[:success] = "re1: #{@response_data} \n--------\n res2: #{@response_data2} \n--------\n res3: #{@response_data3} \n--------\n user_info: #{user_info}"
+          render :test_facebook
           
         end
           
