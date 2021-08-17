@@ -61,11 +61,7 @@ class SessionsController < ApplicationController
       # &error_description=Permissions+error.
 
       flash[:danger] = 'Facebookログインが許可されませんでした。パスワードによるログインを行うか再度Facebookログイン画面でメールアドレスを含むアクセス許可を行ってください。'
-      flash[:danger] += params # デバッグ用
       redirect_to auth_facebook_login_path
-
-    # ＊＊メールアドレスの閲覧許可が得られなかった場合の処理
-    # ＊＊通常のパスワードログイン後にユーザーのプロフィール画面で再リクエスト画面を出す？（ログインしているからもうメリット無い）
 
     elsif (code = params[:code])
       # stateの確認 CSRF対策
