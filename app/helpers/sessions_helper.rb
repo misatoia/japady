@@ -67,19 +67,4 @@ module SessionsHelper
     admin?
   end
 
-  def login_url_facebook
-    state = SecureRandom.alphanumeric
-    session[:facebook_state] = state
-
-    endpoint = 'https://www.facebook.com/v11.0/dialog/oauth'
-    params = {
-      'client_id' => '534002854713007',
-      'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
-      'state' => state,
-      'responce_type' => 'code',
-      'scope' => 'email'
-    }
-
-    URI(endpoint + '?' + params.map { |k, v| "#{k}=#{v}" }.join('&'))
-  end
 end

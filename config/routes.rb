@@ -13,10 +13,11 @@ Rails.application.routes.draw do
 
   # Facebook関連
   # Login redirect_uri 用 "/auth/facebook"
+  get 'auth/facebook/login', to: 'sessions#facebook_login'
   get 'auth/facebook/callback', to: 'sessions#facebook_callback'
   # その他対応要件
-  post 'auth/facebook/deletion', to: 'session#facebook_deletion'
-  post 'auth/facebook/deauthorize', to: 'session#facebook_deauthorize'
+  post 'auth/facebook/deletion', to: 'sessions#facebook_deletion'
+  post 'auth/facebook/deauthorize', to: 'sessions#facebook_deauthorize'
   get 'auth/facebook/afterdeletion', to: 'sessions#facebook_after_deletion'
 
   # LINE へのログイン

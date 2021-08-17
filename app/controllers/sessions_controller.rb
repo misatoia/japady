@@ -24,6 +24,33 @@ class SessionsController < ApplicationController
     redirect_to root_url
   end
 
+  def facebook_login
+    client_id = '534002854713007'
+    redirect_uri = 'https://japady.herokuapp.com/auth/facebook/callback'
+    session[:fb_state] = SecureRandom.alphanumeric
+
+    endpoint = 'https://www.facebook.com/v11.0/dialog/oauth?'
+    if session[:reauth]
+      params = {
+        'client_id' => client_id,
+        'redirect_uri' => redirect_uri,
+        'auth_type' => 'rerequest',
+        'scope' => 'email'
+      }
+      session[:reauth] = nil
+    else
+      params = {
+        'client_id' => '534002854713007',
+        'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
+        'state' => session[:facebook_state],
+        'responce_type' => 'code',
+        'scope' => 'email'
+      }
+    end
+
+    @facebook_login_url = URI(endpoint + params.map { |k, v| "#{k}=#{v}" }.join('&'))
+  end
+
   # facebookからの認可コード受け取り
   def facebook_callback
     @params = params
@@ -33,9 +60,9 @@ class SessionsController < ApplicationController
       # &error=access_denied
       # &error_description=Permissions+error.
 
-      flash[:danger] = 'SNSログインが許可されませんでした'
+      flash[:danger] = 'Facebookログインが許可されませんでした。パスワードによるログインを行うか再度Facebookログイン画面でメールアドレスを含むアクセス許可を行ってください。'
       flash[:danger] += params # デバッグ用
-      redirect_to root_url
+      redirect_to auth_facebook_login_path
 
     # ＊＊メールアドレスの閲覧許可が得られなかった場合の処理
     # ＊＊通常のパスワードログイン後にユーザーのプロフィール画面で再リクエスト画面を出す？（ログインしているからもうメリット無い）
@@ -85,11 +112,6 @@ class SessionsController < ApplicationController
       user_info = JSON.parse(Net::HTTP.get(uri3))
       @response_data3 = user_info # デバッグ用
 
-      # ログイン処理＝セッション変数への格納
-      session[:fb_uid] = uid
-      session[:fb_user_token] = user_token
-      session[:fb_token_expires_in] = expires_in
-
       if @user = User.find_by(uid: uid)
 
         # 既存ユーザーならログイン
@@ -112,7 +134,7 @@ class SessionsController < ApplicationController
         session[:user_id] = @user.id
         redirect_to dashboard_path
 
-      else
+      elsif user_info['email']
         @user = User.new
         @user.uid = uid
         @user.name = user_info['name']
@@ -132,15 +154,16 @@ class SessionsController < ApplicationController
           # begin session
           session[:user_id] = @user.id
   
-  
           redirect_to @user
         else
           @mydata = user_info['id', 'name', 'email']
           render :test_facebook
           
         end
-          
-
+      else
+        flash[:danger] = 'パスワードによるログインを行うか再度Facebookログイン画面でメールアドレスを含むアクセス許可を行ってください。'
+        session[:reauth] = true
+        redirect_to auth_facebook_login_path
       end
 
     end
@@ -253,7 +276,8 @@ class SessionsController < ApplicationController
     session[:fb_user_token] = nil
     session[:fb_token_expires_in] = nil
     session[:fb_state] = nil
+    session[:reauth] = nil
 
-    session[:facebook_state] = nil # これは削除できたらなくす
+    session[:facebook_state] = nil # 旧パラメータ。。なくす
   end
 end
