@@ -5,24 +5,23 @@ class NotesController < ApplicationController
     # 権限によって表示するノートを変える
     # 検索によって与えられたパラメータによる絞りこみもここで行う
     if view_othernotes?
-      if @keyword = params[:q]
+      if (@keyword = params[:q])
         @notes = Note
-          .where("content like ?", "%#{@keyword}%")
-          .or(Note.where(user_id: User.where("nickname like?","%#{@keyword}%").ids))
-          .where.not(user_id: current_user.id)
-          .order(id: :desc).page(params[:page]).per(10)
+                 .where('content like ?', "%#{@keyword}%")
+                 .or(Note.where(user_id: User.where('nickname like?', "%#{@keyword}%").ids))
+                 .where.not(user_id: current_user.id)
+                 .order(id: :desc).page(params[:page]).per(10)
       else
         @notes = Note.where.not(user_id: current_user.id).order(id: :desc).page(params[:page]).per(10)
       end
     else
       redirect_to notes_user_path(current_user)
     end
-
   end
 
   def new
     @note = current_user.notes.new
-    @title = "新規ノート作成 / New note"
+    @title = '新規ノート作成 / New note'
   end
 
   def create
@@ -34,17 +33,16 @@ class NotesController < ApplicationController
       flash.now[:danger] = 'ノートを作成できませんでした。'
     end
     redirect_to(edit_note_path(@note))
-
   end
 
   def edit
     @note = Note.find(params[:id])
-    @title = "ノートの編集 / Edit note"
-    # 権限チェック
-    unless @note.user = current_user || edit_othernotes?
-      redirect_back(fallback_location: dashboard_path)
-    end
+    @title = 'ノートの編集 / Edit note'
 
+    # 権限チェック
+    return if @note.user == current_user || edit_othernotes?
+
+    redirect_back(fallback_location: dashboard_path)
   end
 
   def update
@@ -69,14 +67,11 @@ class NotesController < ApplicationController
       flash[:danger] = 'ノートを削除できませんでした。'
       redirect_back(fallback_location: dashboard_path)
     end
-
   end
 
   private
-  
+
   def note_params
-      params.require(:note).permit(:content, :user_id, :announce)
+    params.require(:note).permit(:content, :user_id, :announce)
   end
-
-
 end

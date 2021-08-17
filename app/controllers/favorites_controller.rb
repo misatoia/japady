@@ -13,6 +13,5 @@ class FavoritesController < ApplicationController
     current_user.unfavorite(note)
     flash[:success] = "#{note.user.nickname}さんのノートをお気に入りから外しました。"
     redirect_back(fallback_location: dashboard_path)
-
   end
 end

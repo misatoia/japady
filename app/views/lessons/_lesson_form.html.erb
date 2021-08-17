@@ -1,37 +1,37 @@
-        <%= form_with(model: lesson, local: true) do |f| %>
-            <div class="form-group">
-                <%= f.label :held_on, '実施日時' %>
-                <div class="input-group">
-                    <div class="form-group">
-                    <%= f.label :started_at, '開始' %>
-                    <%= f.datetime_local_field :started_at, class: 'form-control', disabled: @disabled %>
-                    </div>
-                    <div class="form-group">
-                    <%= f.label :ended_at, '終了' %>
-                    <%= f.time_field :ended_at, class: 'form-control', disabled: @disabled %>
-                    </div>
-                </div>
-            </div>
+<%= form_with(model: lesson, local: true) do |f| %>
+  <div class="form-group">
+    <%= f.label :held_on, '実施日時' %>
+    <div class="input-group">
+      <div class="form-group">
+        <%= f.label :started_at, '開始' %>
+        <%= f.datetime_local_field :started_at, class: 'form-control', disabled: @disabled %>
+      </div>
+      <div class="form-group">
+        <%= f.label :ended_at, '終了' %>
+        <%= f.time_field :ended_at, class: 'form-control', disabled: @disabled %>
+      </div>
+    </div>
+  </div>
 
-            <div class="form-group">
-                <%= f.label :name, '教室名' %>
-                <%= f.text_field :name, class: 'form-control', disabled: @disabled %>
-            </div>
-            <div class="form-group">
-                <%= f.label :remarks, '連絡事項（１００文字まで）' %>
-                <%= f.text_area :remarks, class: 'form-control', rows: 5, disabled: @disabled %>
-            </div>
-    
-            <div class="form-group">
-              <%= f.label :user_id, '教室代表' %>
-              <%= f.select :user_id, @managers, {}, {class: 'form-control', disabled: @disabled} %>
-            </div>
+  <div class="form-group">
+    <%= f.label :name, '教室名' %>
+    <%= f.text_field :name, class: 'form-control', disabled: @disabled %>
+  </div>
+  <div class="form-group">
+    <%= f.label :remarks, '連絡事項（１００文字まで）' %>
+    <%= f.text_area :remarks, class: 'form-control', rows: 5, disabled: @disabled %>
+  </div>
 
-            <% if lesson.created_at.nil? %>
-                <%= f.submit 'この教室情報を作成する/Post this note', class: 'btn btn-primary btn-block' %>
-            <% else %>
-                <%= f.submit 'この教室情報を更新する/Update this note', class: 'btn btn-primary btn-block', disabled: @disabled %>
-            <% end %>
-    
-        <% end %>
-    
+  <div class="form-group">
+    <%= f.label :user_id, '教室代表' %>
+    <%= f.select :user_id, @managers, {}, {class: 'form-control', disabled: @disabled} %>
+  </div>
+
+  <% if lesson.created_at.nil? %>
+    <%= f.submit 'この教室情報を作成する/Post this note', class: 'btn btn-primary btn-block' %>
+  <% else %>
+    <%= f.submit 'この教室情報を更新する/Update this note', class: 'btn btn-primary btn-block', disabled: @disabled %>
+  <% end %>
+
+<% end %>
+

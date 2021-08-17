@@ -2,11 +2,10 @@ class UsersController < ApplicationController
   before_action :require_user_logged_in, only: [:index, :show, :edit, :update, :destroy]
 
   def index
-
     @managers = []
     @users = []
     @guests = []
-    @title = "メンバー一覧"
+    @title = 'メンバー一覧'
 
     if view_lessons?
       all_managers = User.where(member: true, manager: true).order(id: :desc)
@@ -18,7 +17,7 @@ class UsersController < ApplicationController
       all_users = User.where(member: true, manager: [nil, false]).order(id: :desc)
       @users = all_users.page(params[:users_page]).per(10)
       @users_count = all_users.size
-  
+
       # メンバー管理権限ある場合
       if add_members?
         all_guests = User.where(member: [nil, false]).order(created_at: :desc)
@@ -31,9 +30,7 @@ class UsersController < ApplicationController
       @users.push current_user
 
     end
-
   end
-
 
   def show
     @user = User.find(params[:id])
@@ -42,26 +39,23 @@ class UsersController < ApplicationController
 
       @following_members = @user.followings.where(manager: [false, nil], member: true)
       @following_managers = @user.followings.where(manager: true, member: true)
-    
-    else
-      if current_user != @user
-        redirect_to current_user
-      end
-    end
+      @authorizer = User.find(@user.authorized_by_id)
 
+    elsif current_user != @user
+      redirect_to current_user
+    end
   end
 
   def new
     @user = User.new
-
   end
 
   def edit
     @user = User.find(params[:id])
     @title = "#{@user.nickname}さんのプロフィール編集"
-    unless @user && (current_user ==  @user || edit_profiles?)
-      redirect_to dashboard_path
-    end
+    return if @user && (current_user == @user || edit_profiles?)
+
+    redirect_to dashboard_path
   end
 
   def update
@@ -80,7 +74,7 @@ class UsersController < ApplicationController
         @user.update(authorized_by_id: User.find(params[:authorized_by_id]).id, authorized_at: Time.zone.now, member: true)
         flash[:success] = "#{@user.nickname} さんを正規ユーザーとして承認しました。"
       else
-        if !(@user.admin)
+        if !@user.admin
           # 管理者、教室代表の権限もfalseにする。
           @user.update(authorized_by_id: nil, authorized_at: nil, member: nil, manager: nil)
           flash[:success] = "#{@user.nickname} さんを非正規ユーザーにしました。"
@@ -125,34 +119,32 @@ class UsersController < ApplicationController
         render :edit
       end
     end
-
-
   end
 
   def destroy
     @user = User.find(params[:id])
 
     # 自分のプロフィール、かつ自分が管理者ではない。
-    if ((current_user ==  @user ) && !current_user.admin)
+    if (current_user == @user) && !current_user.admin
       @user.destroy
       flash[:success] = '退会しました。'
       redirect_to root_path
 
     # 人のプロフィール、かつプロフィール編集権限を持ち、かつその人が管理者ではない。
-    elsif ((current_user !=  @user ) && edit_profiles? && !@user.admin)
+    elsif (current_user != @user) && edit_profiles? && !@user.admin
       msg = []
       authorized_members = User.where(authorized_by_id: @user.id)
       authorized_members.each do |member|
         member.update(member: false)
         msg.push "#{member.id}: #{member.nickname}さん"
       end
-      if msg
-        flash[:warning] = "【重要】#{msg.join('、')}のユーザー権限を一時的に無効にしました。正しいユーザーであることが確認できたらそれぞれのプロフィール画面で再度ユーザー承認をしてください。"
-      end
-      flash[:success] = "#{@user.nickname} さんのプロフィールを削除しました。"
-      @user.destroy
-      redirect_to users_path
+      flash[:warning] = "【重要】#{msg.join('、')}のユーザー権限を一時的に無効にしました。正しいユーザーであることが確認できたらそれぞれのプロフィール画面で再度ユーザー承認をしてください。" if msg
 
+      flash[:success] = "#{@user.nickname} さんのプロフィールを削除しました。"
+
+      @user.destroy
+
+      redirect_to users_path
     else
       flash[:danger] = "#{@user.nickname} さんのプロフィールを削除できませんでした。"
       redirect_to dashboard_path
@@ -161,12 +153,12 @@ class UsersController < ApplicationController
 
   def create
     @user = User.new(user_params)
-    if User.count == 0
+    if User.count.zero?
       @user.member = true
       @user.manager = true
       @user.admin = true
-    end    
-    
+    end
+
     if @user.save
       flash[:success] = 'ユーザーを登録しました。'
       # begin session
@@ -177,56 +169,52 @@ class UsersController < ApplicationController
       render :new
     end
   end
-  
+
   def notes
     # このアクションでは自分のノート表示のみ
     @user = User.find(params[:id])
     @title = "#{@user.nickname}さんのノート" if @user != current_user
-    
+
     if current_user == @user || view_othernotes?
-      if @keyword = params[:q]
-        @notes = @user.notes.where("content like ?", "%#{@keyword}%")
-          .order(id: :desc).page(params[:page]).per(10)
+      if (@keyword = params[:q])
+        @notes = @user.notes.where('content like ?', "%#{@keyword}%")
+                      .order(id: :desc).page(params[:page]).per(10)
       else
         @notes = @user.notes.order(id: :desc).page(params[:page]).per(10)
       end
     else
       redirect_to notes_user_path(current_user)
-    end        
-
+    end
   end
-  
+
   def lessons
     @user = User.find(params[:id])
     if view_lessons?
-      @title = (@user != current_user ? "#{@user.nickname}さんが" : "") + "開催する（した）教室"
+      @title = "#{@user != current_user ? "#{@user.nickname}さんが" : ''}開催する（した）教室"
       @lessons = @user.lessons.order(started_at: :desc).page(params[:page]).per(10)
       render 'lessons/index'
     else
       flash[:danger] = '教室を閲覧する権限はありません'
       redirect_to dashboard_path
     end
-    
-  end    
-  
+  end
+
   def attended
     @user = User.find(params[:id])
     if view_attendedlessons? || @user == current_user
-      @title = (@user != current_user ? "#{@user.nickname}さんが" : "") + "これまで出席した教室"
+      @title = "#{@user != current_user ? "#{@user.nickname}さんが" : ''}これまで出席した教室"
       @lessons = @user.attending_lessons.where('started_at <= ?', Time.zone.now)
-        .order(started_at: :desc).page(params[:page]).per(10)
+                      .order(started_at: :desc).page(params[:page]).per(10)
       render 'lessons/index'
     else
       flash[:danger] = '出席した教室を閲覧する権限がありません。'
       redirect_to @user
     end
-
   end
 
   private
-  
-  def user_params
-      params.require(:user).permit(:name, :nickname, :email, :password, :password_confirmation, :area_of_residence, :purpose, :member, :manager, :admin, :authorized_by_id, :authorized_at)
-  end
 
+  def user_params
+    params.require(:user).permit(:name, :nickname, :email, :password, :password_confirmation, :area_of_residence, :purpose, :member, :manager, :admin, :authorized_by_id, :authorized_at)
+  end
 end
