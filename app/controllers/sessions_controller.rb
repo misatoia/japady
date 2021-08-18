@@ -251,7 +251,7 @@ class SessionsController < ApplicationController
   def verify_signature(str)
     encoded_sig, payload = str.split('.')
     sig = base64_url_decode(encoded_sig)
-    expected_sig = Digest::SHA256.digest(ENV['FACEBOOK_API_SECRET'], payload)
+    expected_sig = OpenSSL::HMAC.digest('sha256', ENV['FACEBOOK_API_SECRET'], payload)
     sig == expected_sig
   end
 
