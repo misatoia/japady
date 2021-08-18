@@ -258,7 +258,7 @@ class SessionsController < ApplicationController
   # データの取得
   def decode_data(str)
     encoded_sig, payload = str.split('.')
-    data = JSON.decode(base64_url_decode(payload))
+    data = ActiveSupport::JSON.decode(base64_url_decode(payload))
   end
 
   def base64_url_decode(str)
