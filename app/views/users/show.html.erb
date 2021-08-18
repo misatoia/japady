@@ -2,55 +2,64 @@
 
     <img class="img-fluid mx-auto rounded d-block" src="<%= gravatar_url(@user, { size: 200 }) %>" alt=""> 
 
-    <div class="card-text">
-      <div class="fw-bold">名前/name</div>
-      <div class="px-3"><%= simple_format(@user.name) %></div>
-    </div>
-    <div class="card-text">
-      <div class="fw-bold">ニックネーム/Nickname</div>
-      <div class="px-3"><%= simple_format(@user.nickname) %></div>
-    </div>
-    <div class="card-text">
-      <div class="fw-bold">Eメール/Email</div>
-      <div class="px-3"><%= simple_format(@user.email) %></div>
-    </div>
-    <div class="card-text">
-      <div class="fw-bold">お住（す）まいの地域（ちいき）/Area of Residence</div>
-      <div class="px-3"><%= simple_format(@user.area_of_residence) %></div>
-    </div>
-    <div class="card-text">
-      <div class="fw-bold">日本語を学ぶ目的（もくてき）、動機（どうき）、目標（もくひょう）など<br /> / Purpose, reasons, or goal of learning</div>
-      <div class="px-3"><%= simple_format(@user.purpose) %></div>
+    <div class="text-center">
+      <%= '[教室代表]' if @user.manager %>
+      <%= '[管理者]' if @user.admin && @current_user.admin %>
     </div>
 
+    <p>
+      <div>名前/name</div>
+      <div class="px-3"><%= simple_format(@user.name) %></div>
+  
+      <div>ニックネーム/Nickname</div>
+      <div class="px-3"><%= simple_format(@user.nickname) %></div>
+  
+      <div>Eメール/Email</div>
+      <div class="px-3"><%= simple_format(@user.email) %></div>
+  
+      <div>お住（す）まいの地域（ちいき）/Area of Residence</div>
+      <div class="px-3"><%= simple_format(@user.area_of_residence) %></div>
+  
+      <div>日本語を学ぶ目的（もくてき）、動機（どうき）、目標（もくひょう）など<br /> / Purpose, reasons, or goal of learning</div>
+      <div class="px-3"><%= simple_format(@user.purpose) %></div>
+    </p>
+
     <hr />
-    
-    <div class="mt-3"><%= link_to 'ノートを見る', notes_user_path %></div>
-    <% if view_attendedlessons? %>
-    <div class="mt-3"><%= link_to 'これまでに出席した教室を見る', attended_user_path %></div>
-    <% end %>
-    <% if view_lessons? %>
-      <% if @following_managers.any? %>
+
+    <p>
+      <div class="mt-3"><%= link_to 'ノートを見る', notes_user_path %></div>
+      <% if view_attendedlessons? || @user == current_user %>
+        <div class="mt-3"><%= link_to 'これまでに出席した教室を見る', attended_user_path %></div>
+      <% end %>
+      <% if view_lessons? && @user.manager %>
+        <div class="mt-3"><%= link_to '開催教室を見る', lessons_user_path %></div>
+      <% end %>
+    </p>
+
+    <hr />
+
+    <p>
+      <% if view_lessons? && @following_managers.any? %>
         <div class="mt-3">フォロー中の教室代表</div>
         <div class="px-3">
           <% @following_managers.each do |manager| %>
-            <%= link_to "#{manager.nickname}さん", manager %>
+            <%= link_to "#{manager.nickname}さん", manager %><%= ", " if manager != @following_managers.last %>
           <% end %>                        
         </div>
       <% end %>
-    <% end %>
-    <% if view_otherusers? %>
-      <% if @following_members.any? %>
+  
+      <% if view_otherusers? && @following_members.any? %>
         <div class="mt-3">フォロー中のメンバー</div>
         <div class="px-3">
           <% @following_members.each do |member| %>
-            <%= link_to "#{member.nickname}さん", member %>
+            <%= link_to "#{member.nickname}さん", member %><%= ", " if member != @following_members.last %>
           <% end %>                        
         </div>
       <% end %>
-    <% end %>
+    </p>
 
 </div>
+
 <div class="p-5">
   <% unless current_user == @user %>
     <div class="mt-3">
@@ -67,6 +76,7 @@
       <% end %>
     </div>
   <% end %>
+
   <% if add_members? %>
     <div class="mt-3">
       <% if @user.member? && @authorizer %>
@@ -87,11 +97,11 @@
       <% end %>
     </div>
   <% end %>
+
   <% if (current_user ==  @user) || edit_profiles? %>
     <div class="mt-3">
         <%= link_to "プロフィール・パスワードを編集する/Edit profile", edit_user_path(@user), method: :get, class: 'btn btn-primary btn-block' %>
     </div>
   <% end %>
-
 </div>
 

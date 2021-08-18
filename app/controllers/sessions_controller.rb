@@ -29,26 +29,26 @@ class SessionsController < ApplicationController
     redirect_uri = 'https://japady.herokuapp.com/auth/facebook/callback'
     session[:fb_state] = SecureRandom.alphanumeric
 
-    endpoint = 'https://www.facebook.com/v11.0/dialog/oauth?'
+    endpoint = 'https://www.facebook.com/v11.0/dialog/oauth'
     if session[:reauth]
-      params = {
+      params = URI.encode_www_form ({
         'client_id' => client_id,
         'redirect_uri' => redirect_uri,
         'auth_type' => 'rerequest',
         'scope' => 'email'
-      }
+      })
       session[:reauth] = nil
     else
-      params = {
+      params = URI.encode_www_form ({
         'client_id' => '534002854713007',
         'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
         'state' => session[:facebook_state],
         'responce_type' => 'code',
         'scope' => 'email'
-      }
+      })
     end
 
-    @facebook_login_url = URI(endpoint + params.map { |k, v| "#{k}=#{v}" }.join('&'))
+    @facebook_login_url = URI("#{endpoint}+#{params}")
   end
 
   # facebookからの認可コード受け取り
@@ -108,13 +108,13 @@ class SessionsController < ApplicationController
       user_info = JSON.parse(Net::HTTP.get(uri3))
       @response_data3 = user_info # デバッグ用
 
-      if @user = User.find_by(uid: uid)
+      if (@user = User.find_by(uid: uid))
 
         # 既存ユーザーならログイン
         session[:user_id] = @user.id
         redirect_to dashboard_path
-        
-      elsif @user = User.find_by(email: user_info['email'])
+
+      elsif (@user = User.find_by(email: user_info['email']))
 
         # 既存ユーザーかつfacebookログインは初ならfacebook情報をレコードに保管
         if @user.uid.blank?
@@ -123,10 +123,10 @@ class SessionsController < ApplicationController
           flash[:success] = 'Facebookユーザーと連携しました。'
         end
         # メールアドレスで検索して、別のUIDを保持しているケースはあるか。
-          # 空であるケース
-          # 既存ユーザーが別のアドレスのfacebookログインを使いたい場合 facebookのメールアドレスは無視してuidだけ格納する
-          # 次回から１つめの分岐でログインできる。
-        
+        # 空であるケース
+        # 既存ユーザーが別のアドレスのfacebookログインを使いたい場合 facebookのメールアドレスは無視してuidだけ格納する
+        # 次回から１つめの分岐でログインできる。
+
         session[:user_id] = @user.id
         redirect_to dashboard_path
 
@@ -149,12 +149,12 @@ class SessionsController < ApplicationController
           flash[:success] = 'Facebookユーザーを登録しました。'
           # begin session
           session[:user_id] = @user.id
-  
+
           redirect_to @user
         else
           @mydata = user_info['id', 'name', 'email']
           render :test_facebook
-          
+
         end
       else
         flash[:danger] = 'パスワードによるログインを行うか再度Facebookログイン画面でメールアドレスを含むアクセス許可を行ってください。'
@@ -211,19 +211,27 @@ class SessionsController < ApplicationController
   def facebook_deauthorize
     if params[:signed_request] && verify_signature(params[:signed_request])
       signed_request = decode_data(params[:signed_request])
-      user = User.find_by(uid: signed_request['user_id'])
-      confirmation_code = "japady#{user.id}"
-      data = {
-        'url' => "https://japady.herokuapp.com/auth/facebook/afterdeletion?confirmation_code=#{confirmation_code}",
-        'confirmation_code' => confirmation_code
-      }
 
-      render json: JSON.generate(data)
+      puts signed_request
 
-      # ユーザのデータを削除
-      # user.destroy
-
+      if (user = User.find_by(uid: signed_request['user_id']))
+        confirmation_code = "japady#{user.id}"
+        data = {
+          'url' => "https://japady.herokuapp.com/auth/facebook/afterdeletion?confirmation_code=#{confirmation_code}",
+          'confirmation_code' => confirmation_code
+        }
+  
+        render json: JSON.generate(data)
+        # ユーザのデータを削除
+        # user.destroy
+  
+      else
+        puts "user #{user.id} not found"
+        render status: 404, json: { status: 400, message: "User #{user.id} not found" }
+      
+      end
     else
+      puts "Internal Server Error - #{params}"
       render status: :internal_server_error, json: { status: 500, message: 'Internal Server Error' }
     end
     # 署名リクエストの確認

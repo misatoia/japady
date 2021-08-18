@@ -66,5 +66,4 @@ module SessionsHelper
   def add_admins?
     admin?
   end
-
 end
