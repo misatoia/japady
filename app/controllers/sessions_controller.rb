@@ -31,21 +31,21 @@ class SessionsController < ApplicationController
 
     endpoint = 'https://www.facebook.com/v11.0/dialog/oauth?'
     if session[:reauth]
-      params = URI.encode_www_form ({
+      params = {
         'client_id' => client_id,
         'redirect_uri' => redirect_uri,
         'auth_type' => 'rerequest',
         'scope' => 'email'
-      })
+      }
       session[:reauth] = nil
     else
-      params = URI.encode_www_form ({
+      params = {
         'client_id' => '534002854713007',
         'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
         'state' => session[:facebook_state],
         'responce_type' => 'code',
         'scope' => 'email'
-      })
+      }
     end
 
     @facebook_login_url = URI(endpoint + params.map { |k, v| "#{k}=#{v}" }.join('&'))
