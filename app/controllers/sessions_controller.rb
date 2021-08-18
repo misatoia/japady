@@ -29,7 +29,7 @@ class SessionsController < ApplicationController
     redirect_uri = 'https://japady.herokuapp.com/auth/facebook/callback'
     session[:fb_state] = SecureRandom.alphanumeric
 
-    endpoint = 'https://www.facebook.com/v11.0/dialog/oauth'
+    endpoint = 'https://www.facebook.com/v11.0/dialog/oauth?'
     if session[:reauth]
       params = URI.encode_www_form ({
         'client_id' => client_id,
@@ -48,7 +48,7 @@ class SessionsController < ApplicationController
       })
     end
 
-    @facebook_login_url = URI("#{endpoint}+#{params}")
+    @facebook_login_url = URI(endpoint + params.map { |k, v| "#{k}=#{v}" }.join('&'))
   end
 
   # facebookからの認可コード受け取り
