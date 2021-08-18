@@ -192,10 +192,15 @@ class SessionsController < ApplicationController
         puts user.nickname
         confirmation_code = "japady#{user.id}"
         data = {
-          'url' => "https://japady.herokuapp.com/auth/facebook/afterdeletion?confirmation_code=#{confirmation_code}",
+          'url' => "#{auth_facebook_afterdeletion_url}?confirmation_code=#{confirmation_code}",
           'confirmation_code' => confirmation_code
         }
         render json: JSON.generate(data)
+
+        User.find_by(admin: true).notes.new(
+          content: "#{user.nickname}さんが退会しました。",
+          announce: true,
+        ).save
 
         # ユーザのデータを削除
         user.destroy
@@ -214,9 +219,14 @@ class SessionsController < ApplicationController
   def facebook_deauthorize
     if params[:signed_request] && verify_signature(params[:signed_request])
       signed_request = decode_data(params[:signed_request])
+      
+      User.find_by(admin: true).notes.new(
+        content: "#{user.nickname}さんがSNSログインを解除しました。",
+        announce: true,
+        ).save
 
-      # ＊＊＊ uidを削除 - データ削除要求が来たときに探せなくなるのでどうしよう
-#      user.update(uid: nil) if (user = User.find_by(uid: signed_request['user_id']))
+      # ＊＊＊ uidを削除 - データ削除要求が来たときに探せなくなるので何もしない
+      # user.update(uid: nil) if (user = User.find_by(uid: signed_request['user_id']))
     end
   end
 
