@@ -180,64 +180,44 @@ class SessionsController < ApplicationController
     # フェイスブックでのログイン状況（毎リクエスト時？）
   end
 
+  # facebookのアプリ削除リクエスト対応
+  # https://developers.facebook.com/docs/development/create-an-app/app-dashboard/data-deletion-callback
   def facebook_deletion
-    # facebookのアプリ削除リクエスト対応
-    # https://developers.facebook.com/docs/development/create-an-app/app-dashboard/data-deletion-callback
-
     if params[:signed_request] && verify_signature(params[:signed_request])
       signed_request = decode_data(params[:signed_request])
-      user = User.find_by(uid: signed_request['user_id'])
-      confirmation_code = "japady#{user.id}"
-      data = {
-        'url' => "https://japady.herokuapp.com/auth/facebook/afterdeletion?confirmation_code=#{confirmation_code}",
-        'confirmation_code' => confirmation_code
-      }
-
-      render json: JSON.generate(data)
-
-      # ユーザのデータを削除
-      # user.destroy
-
-    else
-      render status: :internal_server_error, json: { status: 500, message: 'Internal Server Error' }
-    end
-
-    # 1. Split the signed request into two parts delineated by a '.' character (eg. 238fsdfsd.oijdoifjsidf899)
-    # 2. Decode the first part - the encoded signature - from base64url
-    # 3. Decode the second part - the payload - from base64url and then decode the resultant JSON object
-    # 4. request に対しての返答
-  end
-
-  def facebook_deauthorize
-    if params[:signed_request] && verify_signature(params[:signed_request])
-      signed_request = decode_data(params[:signed_request])
-
       puts signed_request
-
+      
+      # uidは先に消去されているので見つけることができない。
       if (user = User.find_by(uid: signed_request['user_id']))
+        puts user.nickname
         confirmation_code = "japady#{user.id}"
         data = {
           'url' => "https://japady.herokuapp.com/auth/facebook/afterdeletion?confirmation_code=#{confirmation_code}",
           'confirmation_code' => confirmation_code
         }
-  
         render json: JSON.generate(data)
 
-        # uidを削除
-        user.update(uid: nil)
-  
+        # ユーザのデータを削除
+        user.destroy
+
       else
-        puts "user #{user.id} not found"
-        render status: 404, json: { status: 400, message: "User #{user.id} not found" }
-      
+        render status: 404, json: { status: 404, message: "User - #{signed_request['user_id']} was not found on the Japady." }
       end
+
     else
-      puts "Internal Server Error - #{params}"
       render status: :internal_server_error, json: { status: 500, message: 'Internal Server Error' }
     end
-    # 署名リクエストの確認
-    # ユーザーのフェイスブック関連データを削除
-    # uidの削除のみで良い？
+  end
+
+  # deauthorizeの対応
+  # https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow?locale=ja_JP#deauth-callback
+  def facebook_deauthorize
+    if params[:signed_request] && verify_signature(params[:signed_request])
+      signed_request = decode_data(params[:signed_request])
+
+      # ＊＊＊ uidを削除 - データ削除要求が来たときに探せなくなるのでどうしよう
+#      user.update(uid: nil) if (user = User.find_by(uid: signed_request['user_id']))
+    end
   end
 
   def facebook_after_deletion
