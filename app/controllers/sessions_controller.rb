@@ -222,8 +222,9 @@ class SessionsController < ApplicationController
         }
   
         render json: JSON.generate(data)
-        # ユーザのデータを削除
-        # user.destroy
+
+        # uidを削除
+        user.update(uid: nil)
   
       else
         puts "user #{user.id} not found"

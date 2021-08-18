@@ -1,6 +1,9 @@
 class ApplicationController < ActionController::Base
   include SessionsHelper
 
+  # 外部サーバーからpostを受け取る
+  protect_from_forgery with: :null_session
+
   private
 
   def require_user_logged_in
