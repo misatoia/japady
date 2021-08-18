@@ -56,9 +56,6 @@ class SessionsController < ApplicationController
     @params = params
     if (error = params[:error_reason])
       # ユーザーによって拒否された場合
-      # error_reason=user_denied
-      # &error=access_denied
-      # &error_description=Permissions+error.
 
       flash[:danger] = 'Facebookログインが許可されませんでした。パスワードによるログインを行うか再度Facebookログイン画面でメールアドレスを含むアクセス許可を行ってください。'
       redirect_to auth_facebook_login_path
@@ -122,10 +119,6 @@ class SessionsController < ApplicationController
           @user.save
           flash[:success] = 'Facebookユーザーと連携しました。'
         end
-        # メールアドレスで検索して、別のUIDを保持しているケースはあるか。
-        # 空であるケース
-        # 既存ユーザーが別のアドレスのfacebookログインを使いたい場合 facebookのメールアドレスは無視してuidだけ格納する
-        # 次回から１つめの分岐でログインできる。
 
         session[:user_id] = @user.id
         redirect_to dashboard_path
@@ -169,15 +162,8 @@ class SessionsController < ApplicationController
     # *** UserモデルのSNSログイン用のID格納用カラム追加 => 済
     # *** 既存ユーザーの場合のユーザー情報更新 => 済
     # *** 新規ユーザーの場合のユーザー情報作成 => 済
-    # *** Deauthorize Callback URL, Data Deletion Request URL の対応
+    # *** Deauthorize Callback URL, Data Deletion Request URL の対応 => 済
 
-    # メールアドレスを照合
-    # 既存なら該当のユーザーのUIDを格納
-    # 新規なら新しいユーザーを
-
-    # セッションを開始
-    # フェイスブックからのログアウト方法
-    # フェイスブックでのログイン状況（毎リクエスト時？）
   end
 
   # facebookのアプリ削除リクエスト対応
@@ -198,7 +184,7 @@ class SessionsController < ApplicationController
         render json: JSON.generate(data)
 
         User.find_by(admin: true).notes.new(
-          content: "#{user.nickname}さんが退会しました。",
+          content: "[自動メッセージ] #{user.nickname}さんが退会しました。",
           announce: true,
         ).save
 
@@ -220,13 +206,16 @@ class SessionsController < ApplicationController
     if params[:signed_request] && verify_signature(params[:signed_request])
       signed_request = decode_data(params[:signed_request])
       
-      User.find_by(admin: true).notes.new(
-        content: "#{user.nickname}さんがSNSログインを解除しました。",
-        announce: true,
-        ).save
-
-      # ＊＊＊ uidを削除 - データ削除要求が来たときに探せなくなるので何もしない
-      # user.update(uid: nil) if (user = User.find_by(uid: signed_request['user_id']))
+      if (user = User.find_by(uid: signed_request['user_id']))
+        # デバッグがてら自動投稿
+        User.find_by(admin: true).notes.new(
+          content: "[自動メッセージ] #{user.nickname}さんがSNSログインを解除しました。",
+          announce: true,
+          ).save
+  
+        # uidを削除 - データ削除要求が来たときに探せなくなるので何もしない
+        # user.update(uid: nil)
+      end
     end
   end
 
@@ -272,7 +261,5 @@ class SessionsController < ApplicationController
     session[:fb_token_expires_in] = nil
     session[:fb_state] = nil
     session[:reauth] = nil
-
-    session[:facebook_state] = nil # 旧パラメータ。。なくす
   end
 end
