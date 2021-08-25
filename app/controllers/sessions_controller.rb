@@ -50,7 +50,7 @@ class SessionsController < ApplicationController
       }
     end
 
-    @facebook_login_url = URI(endpoint + params.map { |k, v| "#{k}=#{v}" }.join('&'))
+    @facebook_login_url = URI(endpoint + convert_hash_to_query(params))
   end
 
   # facebookからの認可コード受け取り
@@ -70,7 +70,7 @@ class SessionsController < ApplicationController
       session[:fb_state] = nil
 
       # ユーザー情報を入手
-      user_info = getFacebookUserInfo(code)
+      user_info = get_facebook_user_info(code)
 
       if (user = User.find_by(uid: user_info['id']))
 
@@ -129,51 +129,44 @@ class SessionsController < ApplicationController
   def facebook_deletion
     if params[:signed_request] && verify_signature(params[:signed_request])
       signed_request = decode_data(params[:signed_request])
-      puts signed_request
-      
-      # uidは先に消去されているので見つけることができない。
+
+      # uidでユーザーを検索
       if (user = User.find_by(uid: signed_request['user_id']))
-        puts user.nickname
         confirmation_code = "japady#{user.id}"
         data = {
           'url' => "#{auth_facebook_afterdeletion_url}?confirmation_code=#{confirmation_code}",
           'confirmation_code' => confirmation_code
         }
+        # Facebookへresponceを返す
         render json: JSON.generate(data)
 
-        User.find_by(admin: true).notes.new(
-          content: "[自動メッセージ] #{user.nickname}さんが退会しました。",
-          announce: true,
-        ).save
+        User.find_by(admin: true).notes.create(content: "[自動メッセージ] #{user.nickname}さんが退会しました。")
 
         # ユーザのデータを削除
         user.destroy
 
       else
-        render status: 404, json: { status: 404, message: "User - #{signed_request['user_id']} was not found on the Japady." }
+        render status: :not_found, json: { status: :not_found, message: "User - #{signed_request['user_id']} was not found on the Japady." }
       end
 
     else
-      render status: :internal_server_error, json: { status: 500, message: 'Internal Server Error' }
+      render status: :internal_server_error, json: { status: :internal_server_error, message: 'Internal Server Error' }
     end
   end
 
   # deauthorizeの対応
   # https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow?locale=ja_JP#deauth-callback
   def facebook_deauthorize
-    if params[:signed_request] && verify_signature(params[:signed_request])
-      signed_request = decode_data(params[:signed_request])
-      
-      if (user = User.find_by(uid: signed_request['user_id']))
-        # デバッグがてら自動投稿
-        User.find_by(admin: true).notes.new(
-          content: "[自動メッセージ] #{user.nickname}さんがSNSログインを解除しました。",
-          announce: true,
-          ).save
-  
-        # uidを削除 - データ削除要求が来たときに探せなくなるので何もしない
-        # user.update(uid: nil)
-      end
+    return unless params[:signed_request] && verify_signature(params[:signed_request])
+
+    signed_request = decode_data(params[:signed_request])
+
+    if (user = User.find_by(uid: signed_request['user_id']))
+      # デバッグがてら自動投稿
+      User.find_by(admin: true).notes.create(content: "[自動メッセージ] #{user.nickname}さんがSNSログインを解除しました。")
+
+      # uidを削除 - データ削除要求が来たときに探せなくなるので何もしない
+      # user.update(uid: nil)
     end
   end
 
@@ -213,45 +206,43 @@ class SessionsController < ApplicationController
     true
   end
 
-  def getFacebookUserInfo(code)
+  def get_facebook_user_info(code)
     # ユーザー情報を入手
     require 'net/http'
     facebook_client_id = '534002854713007'
 
     # １．コールバックで得た認可コードをアクセストークンと交換
-    uri = URI('https://graph.facebook.com/v11.0/oauth/access_token?' +
-    {
-      'client_id' => facebook_client_id,
-      'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
-      'client_secret' => ENV['FACEBOOK_API_SECRET'],
-      'code' => code
-    }.map { |k, v| "#{k}=#{v}" }.join('&'))
-
-    token_info = JSON.parse(Net::HTTP.get(uri))
-    user_token = token_info['access_token']
-    expires_in = token_info['expires_in']
+    uri1 = URI('https://graph.facebook.com/v11.0/oauth/access_token?' \
+      + convert_hash_to_query({
+        'client_id' => facebook_client_id,
+        'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
+        'client_secret' => ENV['FACEBOOK_API_SECRET'],
+        'code' => code
+      }))
+    token_info = JSON.parse(Net::HTTP.get(uri1))
     @response_data = token_info # デバッグ用
 
     # ２．アクセストークンの検査 -> アクセストークン情報を取得
-    uri2 = URI('https://graph.facebook.com/debug_token?' +
-    {
-      'input_token' => user_token,
-      'access_token' => "#{facebook_client_id}|#{ENV['FACEBOOK_API_SECRET']}"
-    }.map { |k, v| "#{k}=#{v}" }.join('&'))
-
+    uri2 = URI('https://graph.facebook.com/debug_token?' \
+      + convert_hash_to_query({
+        'input_token' => token_info['access_token'],
+        'access_token' => "#{facebook_client_id}|#{ENV['FACEBOOK_API_SECRET']}"
+      }))
     token_info_checked = JSON.parse(Net::HTTP.get(uri2))
-    uid = token_info_checked['data']['user_id']
     @response_data2 = token_info_checked # デバッグ用
 
     # ３．アクセストークンを使ってユーザー情報を取得
-    uri3 = URI("https://graph.facebook.com/#{uid}?" +
-    {
-      'fields' => 'id,name,email',
-      'access_token' => user_token
-    }.map { |k, v| "#{k}=#{v}" }.join('&'))
-
+    uri3 = URI("https://graph.facebook.com/#{token_info_checked['data']['user_id']}?" \
+      + convert_hash_to_query({
+        'fields' => 'id,name,email',
+        'access_token' => token_info['access_token']
+      }))
     user_info = JSON.parse(Net::HTTP.get(uri3))
     @response_data3 = user_info # デバッグ用
+  end
+
+  def convert_hash_to_query(hash)
+    hash.map { |k, v| "#{k}=#{v}" }.join('&')
   end
 
   def delete_facebook_session
