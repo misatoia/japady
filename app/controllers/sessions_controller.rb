@@ -27,9 +27,9 @@ class SessionsController < ApplicationController
   def facebook_login
     client_id = '534002854713007'
     redirect_uri = 'https://japady.herokuapp.com/auth/facebook/callback'
-    session[:fb_state] = SecureRandom.alphanumeric
-
+    fb_state = SecureRandom.alphanumeric
     endpoint = 'https://www.facebook.com/v11.0/dialog/oauth?'
+
     if session[:reauth]
       params = {
         'client_id' => client_id,
@@ -38,11 +38,13 @@ class SessionsController < ApplicationController
         'scope' => 'email'
       }
       session[:reauth] = nil
+      session[:fb_state] = nil
     else
+      session[:fb_state] = fb_state
       params = {
-        'client_id' => '534002854713007',
-        'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
-        'state' => session[:facebook_state],
+        'client_id' => client_id,
+        'redirect_uri' => redirect_uri,
+        'state' => fb_state,
         'responce_type' => 'code',
         'scope' => 'email'
       }
@@ -62,108 +64,64 @@ class SessionsController < ApplicationController
 
     elsif (code = params[:code])
       # stateの確認 CSRF対策
-      return if params[:state] != session[:facebook_state]
+      return if params[:state] != session[:fb_state]
 
-      # codeを入手できたので削除
+      # codeを入手できたのでstate削除
       session[:fb_state] = nil
 
-      require 'net/http'
-      facebook_client_id = '534002854713007'
+      # ユーザー情報を入手
+      user_info = getFacebookUserInfo(code)
 
-      # １．コールバックで得た認可コードをアクセストークンと交換
-      uri = URI('https://graph.facebook.com/v11.0/oauth/access_token?' +
-      {
-        'client_id' => facebook_client_id,
-        'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
-        'client_secret' => ENV['FACEBOOK_API_SECRET'],
-        'code' => code
-      }.map { |k, v| "#{k}=#{v}" }.join('&'))
-
-      token_info = JSON.parse(Net::HTTP.get(uri))
-      user_token = token_info['access_token']
-      expires_in = token_info['expires_in']
-      @response_data = token_info # デバッグ用
-
-      # ２．アクセストークンの検査 -> アクセストークン情報を取得
-      uri2 = URI('https://graph.facebook.com/debug_token?' +
-      {
-        'input_token' => user_token,
-        'access_token' => "#{facebook_client_id}|#{ENV['FACEBOOK_API_SECRET']}"
-      }.map { |k, v| "#{k}=#{v}" }.join('&'))
-
-      token_info_checked = JSON.parse(Net::HTTP.get(uri2))
-      uid = token_info_checked['data']['user_id']
-      @response_data2 = token_info_checked # デバッグ用
-
-      # ３．アクセストークンを使ってユーザー情報を取得
-      uri3 = URI("https://graph.facebook.com/#{uid}?" +
-      {
-        'fields' => 'id,name,email',
-        'access_token' => user_token
-      }.map { |k, v| "#{k}=#{v}" }.join('&'))
-
-      user_info = JSON.parse(Net::HTTP.get(uri3))
-      @response_data3 = user_info # デバッグ用
-
-      if (@user = User.find_by(uid: uid))
+      if (user = User.find_by(uid: user_info['id']))
 
         # 既存ユーザーならログイン
-        session[:user_id] = @user.id
+        session[:user_id] = user.id
         redirect_to dashboard_path
 
-      elsif (@user = User.find_by(email: user_info['email']))
+      elsif (user = User.find_by(email: user_info['email']))
 
         # 既存ユーザーかつfacebookログインは初ならfacebook情報をレコードに保管
-        if @user.uid.blank?
-          @user.uid = uid
-          @user.save
+        if user.uid.blank?
+          user.uid = user_info['id']
+          user.save
           flash[:success] = 'Facebookユーザーと連携しました。'
         end
 
-        session[:user_id] = @user.id
+        session[:user_id] = user.id
         redirect_to dashboard_path
 
       elsif user_info['email']
-        @user = User.new
-        @user.uid = uid
-        @user.name = user_info['name']
-        @user.nickname = user_info['name']
-        @user.email = user_info['email']
-        @user.password = SecureRandom.alphanumeric(20)
+        user = User.new(
+          uid: user_info['id'],
+          name: user_info['name'],
+          nickname: user_info['name'],
+          email: user_info['email'],
+          password: SecureRandom.alphanumeric(20)
+        )
 
         if User.count.zero?
-          @user.member = true
-          @user.manager = true
-          @user.admin = true
+          user.member = true
+          user.manager = true
+          user.admin = true
         end
 
-        if @user.save
-
+        if user.save
           flash[:success] = 'Facebookユーザーを登録しました。'
           # begin session
-          session[:user_id] = @user.id
+          session[:user_id] = user.id
 
-          redirect_to @user
+          redirect_to user
         else
           @mydata = user_info['id', 'name', 'email']
-          render :test_facebook
 
+          render :test_facebook
         end
       else
         flash[:danger] = 'パスワードによるログインを行うか再度Facebookログイン画面でメールアドレスを含むアクセス許可を行ってください。'
         session[:reauth] = true
         redirect_to auth_facebook_login_path
       end
-
     end
-
-    # *** OAutuのstate パラメータ作成 => 済
-    # *** session変数へのトークン、期限、UID格納 => 済
-    # *** UserモデルのSNSログイン用のID格納用カラム追加 => 済
-    # *** 既存ユーザーの場合のユーザー情報更新 => 済
-    # *** 新規ユーザーの場合のユーザー情報作成 => 済
-    # *** Deauthorize Callback URL, Data Deletion Request URL の対応 => 済
-
   end
 
   # facebookのアプリ削除リクエスト対応
@@ -253,6 +211,47 @@ class SessionsController < ApplicationController
 
     session[:user_id] = @user.id
     true
+  end
+
+  def getFacebookUserInfo(code)
+    # ユーザー情報を入手
+    require 'net/http'
+    facebook_client_id = '534002854713007'
+
+    # １．コールバックで得た認可コードをアクセストークンと交換
+    uri = URI('https://graph.facebook.com/v11.0/oauth/access_token?' +
+    {
+      'client_id' => facebook_client_id,
+      'redirect_uri' => 'https://japady.herokuapp.com/auth/facebook/callback',
+      'client_secret' => ENV['FACEBOOK_API_SECRET'],
+      'code' => code
+    }.map { |k, v| "#{k}=#{v}" }.join('&'))
+
+    token_info = JSON.parse(Net::HTTP.get(uri))
+    user_token = token_info['access_token']
+    expires_in = token_info['expires_in']
+    @response_data = token_info # デバッグ用
+
+    # ２．アクセストークンの検査 -> アクセストークン情報を取得
+    uri2 = URI('https://graph.facebook.com/debug_token?' +
+    {
+      'input_token' => user_token,
+      'access_token' => "#{facebook_client_id}|#{ENV['FACEBOOK_API_SECRET']}"
+    }.map { |k, v| "#{k}=#{v}" }.join('&'))
+
+    token_info_checked = JSON.parse(Net::HTTP.get(uri2))
+    uid = token_info_checked['data']['user_id']
+    @response_data2 = token_info_checked # デバッグ用
+
+    # ３．アクセストークンを使ってユーザー情報を取得
+    uri3 = URI("https://graph.facebook.com/#{uid}?" +
+    {
+      'fields' => 'id,name,email',
+      'access_token' => user_token
+    }.map { |k, v| "#{k}=#{v}" }.join('&'))
+
+    user_info = JSON.parse(Net::HTTP.get(uri3))
+    @response_data3 = user_info # デバッグ用
   end
 
   def delete_facebook_session
