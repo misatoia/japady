@@ -2,7 +2,7 @@
 <%= render 'notes/notes', notes: @announcement %>
 
 
-<div class="bg-info rounded text-center text-white mb-1">次回教室の予定</div>
+<div class="bg-info rounded text-center text-white mb-1">次回出席予定の教室</div>
 
 <%= render 'lessons/lessons', lessons: @lessons %>
 
@@ -12,7 +12,7 @@
 
 <div class="row">
   <div class="col-sm-6">
-    <div class="bg-warning rounded text-center text-dark mb-1"><%= current_user.nickname %> さんの最近のノート</div>
+    <div class="bg-warning rounded text-center text-dark mb-1"><%= current_user.nickname %> さんの最近(過去<%= @days_of_recent %>日）のノート</div>
       <%= render 'notes/notes', notes: @mynotes %>
     <p class="text-right">
       <%= link_to '>>他のノートを見る', notes_user_path(current_user) %>
@@ -30,7 +30,7 @@
     <%= render 'notes/notes', notes: @favorite_notes %>
   </div>
   <div class="col-sm-6">
-    <div class="bg-success rounded text-center text-white mb-1">最近いいね！が多いノート</div>
+    <div class="bg-success rounded text-center text-white mb-1">最近(過去<%= @days_of_recent %>日）いいね！が多いノート</div>
     <%= render 'notes/notes', notes: @topliked_notes %>
   </div>
 </div>

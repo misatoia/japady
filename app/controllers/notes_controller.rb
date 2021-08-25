@@ -10,9 +10,9 @@ class NotesController < ApplicationController
                  .where('content like ?', "%#{@keyword}%")
                  .or(Note.where(user_id: User.where('nickname like?', "%#{@keyword}%").ids))
                  .where.not(user_id: current_user.id)
-                 .order(id: :desc).page(params[:page]).per(10)
+                 .order(created_at: :desc).page(params[:page]).per(10)
       else
-        @notes = Note.where.not(user_id: current_user.id).order(id: :desc).page(params[:page]).per(10)
+        @notes = Note.where.not(user_id: current_user.id).order(created_at: :desc).page(params[:page]).per(10)
       end
     else
       redirect_to notes_user_path(current_user)

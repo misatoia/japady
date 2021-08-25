@@ -25,11 +25,11 @@
           <% if (lesson.user != current_user) && lesson.started_at > Time.zone.now %>
             <% if !current_user.attending?(lesson) %>
               <%= link_to attendances_path(lesson_id: lesson.id), method: :post do %>
-                <i class="fas fa-toggle-off"></i>
+                <i class="fas fa-walking"></i> <i class="fas fa-toggle-off"></i>
               <% end %>
             <% else %>
               <%= link_to attendance_path(lesson.attendances.find_by(user_id: current_user.id)), method: :delete do %>
-                <i class="fas fa-toggle-on"></i>
+                <i class="fas fa-toggle-on"></i> <i class="far fa-sad-tear"></i>
               <% end %>
             <% end %>
           <% end %>

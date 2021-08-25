@@ -8,7 +8,7 @@ class ToppagesController < ApplicationController
   def privacypolicy; end
 
   def dashboard
-    days_of_recent = 30
+    @days_of_recent = 30
     num_of_announcement = 3
     num_of_next_lesson = 1
 
@@ -27,10 +27,10 @@ class ToppagesController < ApplicationController
       @announcement = Note.where(announce: true).order(updated_at: :desc).first(num_of_announcement)
       @favorite_notes = current_user.favorite_notes.order(updated_at: :desc)
       @topliked_notes = Note.select('notes.*', 'count(likes.id) AS num_like').joins(:likes).group('notes.id')\
-                            .order('num_like desc').where('notes.created_at > ?', Time.zone.now.ago(days_of_recent.days))
+                            .order('num_like desc').where('notes.created_at > ?', Time.zone.now.ago(@days_of_recent.days))
       @following_notes = current_user.followings.map(&:latest_note).compact
     end
 
-    @mynotes = current_user.notes.order(updated_at: :desc).where('created_at > ?', Time.zone.now.ago(days_of_recent.days))
+    @mynotes = current_user.notes.order(updated_at: :desc).where('created_at > ?', Time.zone.now.ago(@days_of_recent.days))
   end
 end

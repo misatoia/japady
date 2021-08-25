@@ -1,4 +1,5 @@
-<%= render 'navtabs_notes', user: current_user %>
+<%= render 'notes/navtabs_notes', user: current_user %>
+
 <div class="border-right border-left border-bottom p-3">
   
   <div class="my-3 d-flex justify-content-end">
@@ -11,11 +12,11 @@
   
   <% if @keyword.present?  %>
     <div class="alert alert-light">
-      <%= "「#{@keyword}」 の検索結果：" %>
+      <%= "「#{@keyword}」 の検索結果：#{@notes.size}件" %>
     </div>
   <% end %>
   
-  <%= render 'notes', notes: @notes %>
+  <%= render 'notes/notes', notes: @notes %>
   <%= paginate @notes %>
   
 </div>

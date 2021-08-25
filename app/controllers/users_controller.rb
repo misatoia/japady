@@ -178,9 +178,9 @@ class UsersController < ApplicationController
     if current_user == @user || view_othernotes?
       if (@keyword = params[:q])
         @notes = @user.notes.where('content like ?', "%#{@keyword}%")
-                      .order(id: :desc).page(params[:page]).per(10)
+                      .order(created_at: :desc).page(params[:page]).per(10)
       else
-        @notes = @user.notes.order(id: :desc).page(params[:page]).per(10)
+        @notes = @user.notes.order(created_at: :desc).page(params[:page]).per(10)
       end
     else
       redirect_to notes_user_path(current_user)
