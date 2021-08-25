@@ -12,37 +12,37 @@
         
         <% if lesson.attendances.size > 0 %>
           <div class="border rounded p-3">
-            <div><i class="fas fa-walking"></i> .. <%= "#{lesson.attendances.size}" %></div>
+            <div><i class="fas fa-walking"></i> x <%= "#{lesson.attendances.size}" %></div>
             <% lesson.attendees.each_with_index do |attendee, count| %>
-              <%= link_to "#{attendee.nickname}", attendee %>さん<%= "," if attendee != lesson.attendees.last %>
+              <%= link_to "#{attendee.nickname}#{"(あなた)" if attendee == current_user}", attendee %>さん<%= "," if attendee != lesson.attendees.last %>
             <% end %>
           </div>
         <% end %>
-      </div>
 
-      <div class="card-footer d-flex">
-        <div class="px-1">
-          <% if (lesson.user != current_user) && lesson.started_at > Time.zone.now %>
-            <% if !current_user.attending?(lesson) %>
-              <%= link_to attendances_path(lesson_id: lesson.id), method: :post do %>
-                <i class="fas fa-walking"></i> <i class="fas fa-toggle-off"></i>
-              <% end %>
-            <% else %>
-              <%= link_to attendance_path(lesson.attendances.find_by(user_id: current_user.id)), method: :delete do %>
-                <i class="fas fa-toggle-on"></i> <i class="far fa-sad-tear"></i>
+        <div class="mt-3 d-flex align-items-center">
+          <div class="px-0">
+            <% if (lesson.user != current_user) && lesson.started_at > Time.zone.now %>
+              <% if !current_user.attending?(lesson) %>
+                <%= link_to attendances_path(lesson_id: lesson.id), method: :post, class: 'btn btn-sm btn-light' do %>
+                  <i class="fas fa-walking"></i> 行く
+                <% end %>
+              <% else %>
+                <%= link_to attendance_path(lesson.attendances.find_by(user_id: current_user.id)), method: :delete, class: 'btn btn-sm btn-light' do %>
+                  <i class="far fa-sad-tear"></i> 行かない
+                <% end %>
               <% end %>
             <% end %>
-          <% end %>
+          </div>
+          <div class="ml-auto text-right">
+            <% if edit_lessons? %>
+              <%= link_to edit_lesson_path(lesson), class: 'btn btn-sm btn-light' do %>
+                <i class="fas fa-edit"></i> 編集する
+              <% end %>
+            <% end %>
+          </div>  
         </div>
-        <div class="ml-auto text-right">
-          <% if edit_lessons? %>
-            <%= link_to edit_lesson_path(lesson) do %>
-              <i class="fas fa-edit"></i>
-            <% end %>
-          <% end %>
-        </div>  
+
       </div>
-        
     </div>
   <% end %>
 <% else %>

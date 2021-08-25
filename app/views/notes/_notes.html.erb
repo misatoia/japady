@@ -2,16 +2,16 @@
 <% if notes&.any? %>
   <% notes.each do |note| %>
     <div class="card shadow-sm mb-3 bg-white rounded">
-      <div class="card-header d-flex">
-        <div class="px-1">
+      <div class="card-header d-flex align-items-center">
+        <div class="px-0">
           <a href="<%= user_path(note.user) %>"><%= note.user.nickname %><%= '(あなた)' if note.user == current_user %></a>さん
           <%= note.date_of_note %>
         </div>
         <div class="ml-auto text-right">
           <% if !current_user.favoriting?(note) %>
-            <%= link_to "☆", favorites_path(note.favorites.build, note_id: note.id), method: :post %>
+            <%= link_to "☆", favorites_path(note.favorites.build, note_id: note.id), method: :post, class: 'btn btn-sm btn-light' %>
           <% else %>
-            <%= link_to "★", favorite_path(note.favorites.find_by(user_id: current_user.id)), method: :delete %>
+            <%= link_to "★", favorite_path(note.favorites.find_by(user_id: current_user.id)), method: :delete, class: 'btn btn-sm btn-light' %>
           <% end %>
         </div>
       </div>
@@ -20,29 +20,29 @@
         <div class="card-text"><%= simple_format(note.content) %></div>
 
         <% if note.likes.size > 0 %>
-          <div><i class="far fa-thumbs-up"></i> .. <%= "#{note.likes.size}" %></div>
+          <div><i class="far fa-thumbs-up"></i> x <%= "#{note.likes.size}" %></div>
         <% end %>
   
-      </div>
-
-      <div class="card-footer d-flex">
-        <div class="px-1">
-          <% if note.user != current_user && !current_user.liking?(note) %>
-            <%= link_to likes_path(note.likes.build, note_id: note.id), method: :post do %>
-              <i class="far fa-thumbs-up"></i>
+  
+        <div class="mt-3 d-flex align-items-center">
+          <div class="px-0">
+            <% if note.user != current_user && !current_user.liking?(note) %>
+              <%= link_to likes_path(note.likes.build, note_id: note.id), method: :post, class: 'btn btn-sm btn-light' do %>
+                <i class="far fa-thumbs-up"></i> いいね！
+              <% end %>
             <% end %>
-          <% end %>
+          </div>
+  
+          <div class="ml-auto text-right">
+            <% if note.user == current_user || edit_othernotes? %>
+              <%= link_to edit_note_path(note), class: 'btn btn-sm btn-light' do %>
+                <i class="fas fa-edit"></i> 編集する
+              <% end %>
+            <% end %>
+          </div>
         </div>
 
-        <div class="ml-auto text-right">
-          <% if note.user == current_user || edit_othernotes? %>
-            <%= link_to edit_note_path(note) do %>
-              <i class="fas fa-edit"></i>
-            <% end %>
-          <% end %>
-        </div>
       </div>
-      
     </div>
   <% end %>
 

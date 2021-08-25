@@ -30,7 +30,7 @@
     <%= render 'notes/notes', notes: @favorite_notes %>
   </div>
   <div class="col-sm-6">
-    <div class="bg-success rounded text-center text-white mb-1">最近(過去<%= @days_of_recent %>日）いいね！が多いノート</div>
+    <div class="bg-success rounded text-center text-white mb-1">最近(過去<%= @days_of_recent %>日）いいね！トップ<%= @num_of_top_likes %></div>
     <%= render 'notes/notes', notes: @topliked_notes %>
   </div>
 </div>
