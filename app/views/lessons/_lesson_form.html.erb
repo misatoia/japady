@@ -22,15 +22,15 @@
     <%= f.text_area :remarks, class: 'form-control', rows: 5, disabled: @disabled %>
   </div>
 
-  <div class="form-group">
-    <%= f.label :user_id, '教室代表' %>
-    <%= f.select :user_id, @managers, {}, {class: 'form-control', disabled: @disabled} %>
-  </div>
 
   <% if lesson.created_at.nil? %>
-    <%= f.submit 'この教室情報を作成する/Post this note', class: 'btn btn-primary btn-block' %>
+    <%= f.submit 'この教室情報を作成する/Post this lesson', class: 'btn btn-primary btn-block' %>
   <% else %>
-    <%= f.submit 'この教室情報を更新する/Update this note', class: 'btn btn-primary btn-block', disabled: @disabled %>
+    <div class="form-group">
+      <%= f.label :user_id, '教室代表' %>
+      <%= f.select :user_id, @managers, {}, {class: 'form-control', disabled: @disabled} %>
+    </div>
+    <%= f.submit 'この教室情報を更新する/Update this lesson', class: 'btn btn-primary btn-block', disabled: @disabled %>
   <% end %>
 
 <% end %>

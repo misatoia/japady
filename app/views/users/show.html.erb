@@ -2,10 +2,12 @@
 
     <img class="img-fluid mx-auto rounded d-block" src="<%= gravatar_url(@user, { size: 200 }) %>" alt=""> 
 
-    <div class="text-center">
-      <%= '[教室代表]' if @user.manager %>
-      <%= '[管理者]' if @user.admin && @current_user.admin %>
-    </div>
+    <div class="text-center"><small>
+      <div>ユーザー登録日： <%= @user.created_at.strftime("%Y-%m-%d %H:%M:%S") %></div>
+      <span class="text-danger"><%= '[未承認ユーザー]' if !@user.member %></span>
+      <span><%= '[教室代表]' if @user.manager %></span>
+      <span><%= '[管理者]' if @user.admin && @current_user.admin %></span>
+    </small></div>
 
     <p>
       <div>名前/name</div>

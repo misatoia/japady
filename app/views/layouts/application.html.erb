@@ -30,7 +30,7 @@
               </aside>
               <div class="col-sm-9">
                 <% if @title %>
-                  <h2 class="bg-light mb-4"><%= @title %></h2>
+                  <h3 class="bg-light mb-4"><%= @title %></h3>
                   <% end %>
                 <%= yield %>
               </div>
@@ -46,7 +46,7 @@
       <% end  %>
 
       <footer>
-        <div class="bg-dark text-light text-center"><small><a href="<%= root_url %>" class="text-light"><i class="far fa-thumbs-up"></i>Japady</a> / 2021</small></div>
+        <div class="text-light text-center"><small><a href="<%= root_url %>" class="text-light"><i class="far fa-thumbs-up"></i>Japady</a> / 2021</small></div>
       </footer>
 
     </div>

@@ -21,10 +21,21 @@
     box-sizing: border-box;/*←全て含めてmin-height:100vhに*/
 }
 
+header nav {
+    background-color: lightseagreen;
+}
+
+header nav div.dropdown-menu {
+    background-color: azure;
+}
+
 footer div {
     width: 100%;
     padding: 5px 0;
 
     position: absolute;/*←絶対位置*/
     bottom: 0; /*下に固定*/
+
+    background-color: lightseagreen;
+    
 }

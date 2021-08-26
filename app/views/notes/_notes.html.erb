@@ -9,7 +9,7 @@
         </div>
         <div class="ml-auto text-right">
           <% if !current_user.favoriting?(note) %>
-            <%= link_to "☆", favorites_path(note.favorites.build, note_id: note.id), method: :post, class: 'btn btn-sm btn-light' %>
+            <%= link_to "☆", favorites_path(note_id: note.id), method: :post, class: 'btn btn-sm btn-light' %>
           <% else %>
             <%= link_to "★", favorite_path(note.favorites.find_by(user_id: current_user.id)), method: :delete, class: 'btn btn-sm btn-light' %>
           <% end %>
@@ -19,18 +19,18 @@
       <div class="card-body">
         <div class="card-text"><%= simple_format(note.content) %></div>
 
-        <% if note.likes.size > 0 %>
-          <div><i class="far fa-thumbs-up"></i> x <%= "#{note.likes.size}" %></div>
-        <% end %>
-  
-  
         <div class="mt-3 d-flex align-items-center">
           <div class="px-0">
             <% if note.user != current_user && !current_user.liking?(note) %>
-              <%= link_to likes_path(note.likes.build, note_id: note.id), method: :post, class: 'btn btn-sm btn-light' do %>
+              <%= link_to likes_path(note_id: note.id), method: :post, class: 'btn btn-sm btn-light' do %>
                 <i class="far fa-thumbs-up"></i> いいね！
               <% end %>
+            <% else %>
+              <i class="far fa-thumbs-up"></i> いいね！
             <% end %>
+
+            <%= "x #{note.likes.size}" if note.likes.any? %>
+
           </div>
   
           <div class="ml-auto text-right">

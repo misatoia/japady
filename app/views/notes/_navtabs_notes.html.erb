@@ -1,10 +1,10 @@
 <% if view_othernotes? %>
   <ul class="nav nav-tabs text-center">
     <li class="nav-item w-50">
-      <a class="nav-link <%= current_page?(notes_user_path(user)) ? 'active' : 'bg-light border-bottom' %>" href="<%= notes_user_path(user) %>"><%= "#{user.nickname}さんの" if current_user != user %>ノート一覧</a>
+      <a class="nav-link <%= current_page?(notes_user_path(user)) ? 'active' : 'bg-light border-bottom' %>" href="<%= notes_user_path(user) %>"><%= "#{user.nickname}#{'(あなた)' if current_user == user}さんの"  %>ノート</a>
     </li>
     <li class="nav-item w-50">
-      <a class="nav-link <%=  current_page?(notes_path) ? 'active' : 'bg-light border-bottom' %>" href="<%= notes_path %>">他の人のノート一覧</a>
+      <a class="nav-link <%=  current_page?(notes_path) ? 'active' : 'bg-light border-bottom' %>" href="<%= notes_path %>">他の人のノート</a>
     </li>
   </ul>
 <% else %>

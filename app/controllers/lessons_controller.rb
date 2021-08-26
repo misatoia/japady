@@ -5,7 +5,7 @@ class LessonsController < ApplicationController
   def index
     @user = current_user
     @lessons = []
-    @title = 'すべての教室/all lessons'
+    @title = 'すべての教室 / All lessons'
     if view_lessons?
       @lessons = Lesson
                  .joins(:user)
@@ -21,7 +21,7 @@ class LessonsController < ApplicationController
   def coming_lessons
     @user = current_user
     @lessons = []
-    @title = '予定されている教室/coming lessons'
+    @title = '予定されている教室 / Coming lessons'
 
     if view_lessons?
       @lessons = Lesson
@@ -40,7 +40,7 @@ class LessonsController < ApplicationController
 
   def new
     @lesson = current_user.lessons.new
-    @title = '教室情報 作成'
+    @title = '教室情報 作成 / New lesson'
 
     default_time = Time.zone.now
     @lesson.started_at = (default_time + 60 * 60).strftime(('%Y-%m-%d %H:00'))
@@ -52,7 +52,7 @@ class LessonsController < ApplicationController
   def edit
     @lesson = Lesson.find(params[:id])
 
-    @title = '教室情報 編集'
+    @title = '教室情報 編集 / Edit lesson'
     @managers = User
                 .where(member: true, manager: true).pluck(:nickname, :id)
     @attendees = User

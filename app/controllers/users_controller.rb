@@ -35,7 +35,7 @@ class UsersController < ApplicationController
   def show
     @user = User.find(params[:id])
     if view_otherusers?
-      @title = "#{@user.nickname}さんのプロフィール"
+      @title = "#{@user.nickname}さんのプロフィール / #{@user.nickname}'s profile"
 
       @following_members = @user.followings.where(manager: [false, nil], member: true)
       @following_managers = @user.followings.where(manager: true, member: true)
@@ -90,7 +90,7 @@ class UsersController < ApplicationController
       else
         if @user.member
           @user.update(manager: params[:manager])
-          flash[:primary] = "#{@user.nickname}さんの教室代表権限を #{@user.manager} にしました。"
+          flash[:primary] = "#{@user.nickname}さんの教室代表権限を#{@user.manager ? '付与' : '削除'}しました。"
         else
           flash[:warning] = "#{@user.nickname}さんは正規ユーザーではありません。"
         end
@@ -103,7 +103,7 @@ class UsersController < ApplicationController
       else
         if @user.member
           @user.update(admin: params[:admin])
-          flash[:primary] = "#{@user.nickname}さんの管理者権限を #{@user.admin} にしました。"
+          flash[:primary] = "#{@user.nickname}さんの管理者権限を#{@user.admin ? '付与' : '削除'}しました。"
         else
           flash[:warning] = "#{@user.nickname}さんは正規ユーザーではありません。"
         end

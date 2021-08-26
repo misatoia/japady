@@ -28,7 +28,7 @@
                 <% end %>
               <% else %>
                 <%= link_to attendance_path(lesson.attendances.find_by(user_id: current_user.id)), method: :delete, class: 'btn btn-sm btn-light' do %>
-                  <i class="far fa-sad-tear"></i> 行かない
+                  <i class="far fa-sad-tear"></i> やっぱり行かない
                 <% end %>
               <% end %>
             <% end %>
