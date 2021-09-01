@@ -9,24 +9,26 @@ class UsersController < ApplicationController
 
     if view_lessons?
       all_managers = User.where(member: true, manager: true)
-      
+
       managers_with_lesson = all_managers \
         .from(User\
           .joins(:lessons)\
           .where('lessons.started_at >= ?', Time.zone.now)\
           .group('users.id')\
-          .select('users.*', 'lessons.started_at', 'min(lessons.started_at) AS next_lesson_started')\
-          , :users)
+          .select('users.*', 'min(lessons.started_at) AS next_lesson_started')\
+          , :users)\
         .order('next_lesson_started ASC')
-
+      
       managers_without_lesson = all_managers \
-        .where.not(id: managers_with_lesson.ids)
-        .left_outer_joins(:lessons)\
-        .select('users.*', 'lessons.started_at', 'min(lessons.started_at) AS next_lesson_started')\
-        .group('users.id')
+        .from(User\
+          .where.not(id: managers_with_lesson.ids)\
+          .left_outer_joins(:lessons)\
+          .group('users.id')\
+          .select('users.*', 'min(lessons.started_at) AS next_lesson_started')\
+          , :users)
 
       @managers = Kaminari.paginate_array(managers_with_lesson + managers_without_lesson).page(params[:managers_page]).per(10)
-
+      
       @managers_count = all_managers.size
     end
 
