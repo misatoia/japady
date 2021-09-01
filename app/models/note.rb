@@ -9,8 +9,10 @@ class Note < ApplicationRecord
   has_many :likes, dependent: :destroy
   has_many :liking_users, through: :likes, source: :user, dependent: :destroy
 
+
   # Date of note
   def date_of_note
-    created_at.strftime("%m月%d日(#{%w[日 月 火 水 木 金 土][created_at.wday]}) %H:%M")
+    created_at.strftime("%m月%d日(#{youbi(created_at.wday)}) %H:%M")
   end
+
 end

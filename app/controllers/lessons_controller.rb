@@ -25,10 +25,9 @@ class LessonsController < ApplicationController
 
     if view_lessons?
       @lessons = Lesson
+                 .coming_lessons
                  .joins(:user)
                  .where(users: { manager: true })
-                 .where('started_at >= ?', Time.zone.now)
-                 .order(started_at: :asc)
                  .page(params[:page]).per(10)
 
       render 'index'

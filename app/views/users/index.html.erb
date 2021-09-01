@@ -2,31 +2,33 @@
 <% if @managers.any? %>
 <div class="bg-info rounded text-center text-white">教室代表 (<%= @managers_count %>人)</div>
 <table class="table table-bordered rounded">
-    <thead>
-        <tr>
-            <th>ニックネーム</th>
-            <th>最終アナウンス</th>
-            <th>次回教室</th>
-            <th>フォロー</th>
-        </tr>
-    </thead>
-    <tbody>
-        <% @managers.each do |manager| %>
-        <tr>
-            <th>
-                <a href="<%= user_path(manager) %>">
-                <div class="media">
-                    <img class="mr-2 rounded-circle" src="<%= gravatar_url(manager, { size:25 }) %>" alt="">
-                    <div class="media-body"><%= manager.nickname %><%= ' (あなた)' if manager == current_user %></div>
-                </div>
-                </a>
-            </th>
-            <td><%= manager.latest_announcement&.date_of_note %></td>
-            <td><%= manager.next_lesson&.date_of_lesson %></td>
-            <td><%= current_user.following?(manager) ? 'している' : 'していない' %></td>
-        </tr>
-        <% end %>
-    </tbody>
+  <thead>
+    <tr>
+      <th>ニックネーム</th>
+      <th>次回教室</th>
+      <th>最終アナウンス</th>
+      <th>フォロー</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @managers.each do |manager| %>
+    <tr>
+      <th>
+        <a href="<%= user_path(manager) %>">
+        <div class="media">
+          <img class="mr-2 rounded-circle" src="<%= gravatar_url(manager, { size:25 }) %>" alt="">
+          <div class="media-body"><%= manager.nickname %><%= ' (あなた)' if manager == current_user %></div>
+        </div>
+        </a>
+      </th>
+      <% lesson = manager&.next_lesson %>
+      <td><%= link_to lesson&.date_of_lesson, lessons_user_path(manager) if lesson %></td>
+      <% announcement = manager&.latest_announcement %>
+      <td><%= link_to announcement&.date_of_note, notes_user_path(manager) if announcement %></td>
+      <td><%= current_user.following?(manager) ? 'している' : 'していない' %></td>
+    </tr>
+    <% end %>
+  </tbody>
 </table>
 <%= paginate @managers, param_name: 'managers_page' %>
 <% end %>
@@ -34,31 +36,31 @@
 <% if @users.any? %>
 <div class="bg-info rounded text-center text-white">メンバー (<%= @users_count %>人)</div>
 <table class="table table-bordered rounded">
-    <thead>
-        <tr>
-            <th>ニックネーム</th>
-            <th>ノート数</th>
-            <th>最終ノート作成日</th>
-            <th>フォロー</th>
-        </tr>
-    </thead>
-    <tbody>
-        <% @users.each do |user| %>
-        <tr>
-            <th>
-                <a href="<%= user_path(user) %>">
-                <div class="media">
-                    <img class="mr-2 rounded-circle" src="<%= gravatar_url(user, { size:25 }) %>" alt="">
-                    <div class="media-body"><%= user.nickname %><%= ' (あなた)' if user == current_user %></div>
-                </div>
-                </a>
-            </th>
-            <td><%= user.notes.count %></td>
-            <td><%= user.latest_note&.date_of_note %></td>
-            <td><%= current_user.following?(user) ? 'している' : 'していない' %></td>
-        </tr>
-        <% end %>
-    </tbody>
+  <thead>
+    <tr>
+      <th>ニックネーム</th>
+      <th>ノート数</th>
+      <th>最終ノート作成日</th>
+      <th>フォロー</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+    <tr>
+      <th>
+        <a href="<%= user_path(user) %>">
+          <div class="media">
+            <img class="mr-2 rounded-circle" src="<%= gravatar_url(user, { size:25 }) %>" alt="">
+            <div class="media-body"><%= user.nickname %><%= ' (あなた)' if user == current_user %></div>
+          </div>
+        </a>
+      </th>
+      <td class="text-center"><%= user.notes.size %></td>
+      <td><%= link_to user.latest_note&.date_of_note, notes_user_path(user) if user.notes.any? %></td>
+      <td><%= current_user.following?(user) ? 'している' : 'していない' %></td>
+    </tr>
+    <% end %>
+  </tbody>
 </table>
 <%= paginate @users, param_name: 'users_page' %>
 <% end %>
@@ -66,22 +68,22 @@
 <% if @guests.any? && add_members? %>
 <div class="bg-warning rounded text-center">未承認ユーザー (<%= @guests_count %>人)</div>
 <table class="table table-bordered rounded">
-    <thead>
-        <tr>
-            <th>ニックネーム</th>
-            <th>ユーザー登録日</th>
-        </tr>
-    </thead>
-    <tbody>
-        <% @guests.each do |guest| %>
-        <tr>
-            <th>
-                <a href="<%= user_path(guest) %>"><%= guest.nickname %></a>
-            </th>
-            <td><%= guest.created_at %></td>
-        </tr>
-        <% end %>
-    </tbody>
+  <thead>
+    <tr>
+      <th>ニックネーム</th>
+      <th>ユーザー登録日</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @guests.each do |guest| %>
+    <tr>
+      <th>
+        <a href="<%= user_path(guest) %>"><%= guest.nickname %></a>
+      </th>
+      <td><%= guest.created_at %></td>
+    </tr>
+    <% end %>
+  </tbody>
 </table>
 
 

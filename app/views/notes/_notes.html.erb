@@ -22,7 +22,7 @@
         <div class="mt-3 d-flex align-items-center">
           <div class="px-0">
             <% if note.user != current_user && !current_user.liking?(note) %>
-              <%= link_to likes_path(note_id: note.id), method: :post, class: 'btn btn-sm btn-light' do %>
+              <%= link_to likes_path(note_id: note.id), method: :post, class: 'btn btn-sm btn-secondary' do %>
                 <i class="far fa-thumbs-up"></i> いいね！
               <% end %>
             <% else %>

@@ -2,26 +2,50 @@ class UsersController < ApplicationController
   before_action :require_user_logged_in, only: [:index, :show, :edit, :update, :destroy]
 
   def index
-    @managers = []
-    @users = []
-    @guests = []
+    @managers = User.none
+    @users = User.none
+    @guests = User.none
     @title = 'メンバー一覧'
 
     if view_lessons?
-      all_managers = User.where(member: true, manager: true).order(id: :desc)
-      @managers = all_managers.page(params[:managers_page]).per(10)
+      all_managers = User.where(member: true, manager: true)
+      
+      managers_with_lesson = all_managers \
+        .from(User\
+          .joins(:lessons)\
+          .where('lessons.started_at >= ?', Time.zone.now)\
+          .group('users.id')\
+          .select('users.*', 'lessons.started_at', 'min(lessons.started_at) AS next_lesson_started')\
+          , :users)
+        .order('next_lesson_started ASC')
+
+      managers_without_lesson = all_managers \
+        .where.not(id: managers_with_lesson.ids)
+        .left_outer_joins(:lessons)\
+        .select('users.*', 'lessons.started_at', 'min(lessons.started_at) AS next_lesson_started')\
+        .group('users.id')
+
+      @managers = Kaminari.paginate_array(managers_with_lesson + managers_without_lesson).page(params[:managers_page]).per(10)
+
       @managers_count = all_managers.size
     end
 
     if view_otherusers?
-      all_users = User.where(member: true, manager: [nil, false]).order(id: :desc)
-      @users = all_users.page(params[:users_page]).per(10)
+      all_users = User.where(member: true, manager: [nil, false])
+
+      users_with_note = all_users\
+        .left_outer_joins(:notes)\
+        .group('users.id')\
+        .select('users.*', 'max(notes.created_at) AS latest_note_created')\
+        .order('latest_note_created desc')
+        
+      @users = users_with_note.page(params[:users_page]).per(20)
       @users_count = all_users.size
 
       # メンバー管理権限ある場合
       if add_members?
         all_guests = User.where(member: [nil, false]).order(created_at: :desc)
-        @guests = all_guests.page(params[:guests_page]).per(10)
+        @guests = all_guests.page(params[:guests_page]).per(20)
         @guests_count = all_guests.size
       end
 

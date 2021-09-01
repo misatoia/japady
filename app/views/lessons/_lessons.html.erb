@@ -23,7 +23,7 @@
           <div class="px-0">
             <% if (lesson.user != current_user) && lesson.started_at > Time.zone.now %>
               <% if !current_user.attending?(lesson) %>
-                <%= link_to attendances_path(lesson_id: lesson.id), method: :post, class: 'btn btn-sm btn-light' do %>
+                <%= link_to attendances_path(lesson_id: lesson.id), method: :post, class: 'btn btn-sm btn-secondary' do %>
                   <i class="fas fa-walking"></i> 行く
                 <% end %>
               <% else %>
