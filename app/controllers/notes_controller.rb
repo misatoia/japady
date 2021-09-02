@@ -5,14 +5,20 @@ class NotesController < ApplicationController
     # 権限によって表示するノートを変える
     # 検索によって与えられたパラメータによる絞りこみもここで行う
     if view_othernotes?
+      notes_with_users = Note
+                .includes(:user).references(:user)
+                .where('users.member = true')
+                .where.not(user_id: current_user.id)
       if (@keyword = params[:q])
-        @notes = Note
-                 .where('content like ?', "%#{@keyword}%")
-                 .or(Note.where(user_id: User.where('nickname like?', "%#{@keyword}%").ids))
-                 .where.not(user_id: current_user.id)
-                 .order(created_at: :desc).page(params[:page]).per(10)
+        @notes = notes_with_users
+                .where('content like ?', "%#{@keyword}%")
+                .or(notes_with_users
+                  .where('users.nickname like?', "%#{@keyword}%"))
+                .order(created_at: :desc)
+                .page(params[:page]).per(10)
       else
-        @notes = Note.where.not(user_id: current_user.id).order(created_at: :desc).page(params[:page]).per(10)
+        @notes = notes_with_users.order(created_at: :desc)
+                .page(params[:page]).per(10)
       end
     else
       redirect_to notes_user_path(current_user)

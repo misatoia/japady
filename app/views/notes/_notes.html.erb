@@ -25,7 +25,7 @@
               <%= link_to likes_path(note_id: note.id), method: :post, class: 'btn btn-sm btn-secondary' do %>
                 <i class="far fa-thumbs-up"></i> いいね！
               <% end %>
-            <% else %>
+            <% elsif note.likes.any? %>
               <i class="far fa-thumbs-up"></i> いいね！
             <% end %>
 

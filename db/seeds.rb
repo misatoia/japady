@@ -11,11 +11,14 @@
 admins = [
     {name: "煌木太郎", nickname: "太郎", email: "taro@techacademy.jp", \
         area_of_residence: "中央地区", purpose: "団体を支援する"},
+    {name: "煌木三郎", nickname: "三郎", email: "saburo@techacademy.jp", \
+        area_of_residence: "中央地区２", purpose: "兄を支援する"},
 ]
 admins.each do | user |
   timestamp = Time.zone.now - 120.days
   user['password'] = 'password'
   user['admin'] = true
+  user['member'] = true
   user['created_at'] = timestamp
   user['updated_at'] = timestamp
 end
@@ -70,6 +73,9 @@ members = [
   {name: "Mori", nickname: "morimori", email: "mori@example.jp", \
       area_of_residence: "北地区", purpose: "楽しんで学びましょう"},
 
+  {name: "煌木次郎", nickname: "煌木先生", email: "moiheszjui_1629816654@tfbnw.net", \
+      area_of_residence: "隣町", purpose: ""},
+
 ]
 members.each do | user |
   timestamp = Time.zone.now + rand(-90..0).days
@@ -84,6 +90,8 @@ User.create(members)
 
 guests = [
     {name: "煌木花子", nickname: "ハナ", email: "hana@example.jp", \
+        area_of_residence: "隣町", purpose: ""},
+    {name: "煌木四郎", nickname: "シロー", email: "shiro@example.jp", \
         area_of_residence: "隣町", purpose: ""},
 ]
 guests.each do | user |
@@ -107,7 +115,7 @@ end
 
 # note
 100.times do |number|
-  member = User.where(manager: [nil, false]).sample
+  member = User.where(member: true, manager: [nil, false]).sample
   timestamp = Time.zone.now + (-100 + number).days
   member.notes.create(content: "This is #{number.ordinalize} note created by #{member.nickname}", created_at: timestamp, updated_at: timestamp )
 end
