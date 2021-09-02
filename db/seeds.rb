@@ -109,7 +109,7 @@ User.create(guests)
 
 # follow
 30.times do |number|
-  member1, member2 = User.all.sample(2) 
+  member1, member2 = User.where(member: true).sample(2) 
   member1.follow(member2)
 end
 
@@ -128,13 +128,13 @@ end
 
 # like
 400.times do |number|
-  member = User.all.sample
+  member = User.where(member: true).sample
   member.like(Note.all.sample)
 end
 
 # favorite
 80.times do |number|
-  member = User.all.sample
+  member = User.where(member: true).sample
   member.favorite(Note.where(announce: true).sample)
 end
 
@@ -157,7 +157,7 @@ end
 
 # attendance
 100.times do |number|
-  member = User.where(manager: [nil, false]).sample
+  member = User.where(member: true, manager: [nil, false]).sample
   member.attend(Lesson.all.sample)
 end
 
