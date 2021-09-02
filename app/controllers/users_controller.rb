@@ -34,12 +34,13 @@ class UsersController < ApplicationController
 
     if view_otherusers?
       all_users = User.where(member: true, manager: [nil, false])
+      order_query_for_null = ENV['RAILS_ENV'] == 'production' ? ' NULLS LAST' : ''
 
       users_with_note = all_users\
         .left_outer_joins(:notes)\
         .group('users.id')\
         .select('users.*', 'max(notes.created_at) AS latest_note_created')\
-        .order('latest_note_created desc')
+        .order("latest_note_created DESC#{order_query_for_null}")
         
       @users = users_with_note.page(params[:users_page]).per(20)
       @users_count = all_users.size

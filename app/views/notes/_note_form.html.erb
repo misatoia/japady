@@ -1,7 +1,7 @@
 <%= form_with(model: note, local: true) do |f| %>
   <div class="form-group">
     <%= f.label :content, 'ノート（１００文字まで）/Note (maximum 100 characters)' %>
-    <%= f.text_area :content, class: 'form-control', rows: 5 %>
+    <%= f.text_area :content, class: 'form-control', rows: 5, required: true %>
   </div>
 
   <% if make_announce? %>
