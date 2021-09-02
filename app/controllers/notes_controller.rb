@@ -22,6 +22,8 @@ class NotesController < ApplicationController
   def new
     @note = current_user.notes.new
     @title = '新規ノート作成 / New note'
+    
+    render 'edit'
   end
 
   def create
@@ -29,10 +31,11 @@ class NotesController < ApplicationController
 
     if @note.save
       flash[:success] = 'ノートを作成しました。'
+      redirect_to(edit_note_path(@note))
     else
       flash.now[:danger] = 'ノートを作成できませんでした。'
+      render 'edit'
     end
-    redirect_to(edit_note_path(@note))
   end
 
   def edit

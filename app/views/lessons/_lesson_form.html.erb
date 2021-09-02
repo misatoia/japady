@@ -4,18 +4,18 @@
     <div class="input-group">
       <div class="form-group">
         <%= f.label :started_at, '開始' %>
-        <%= f.datetime_local_field :started_at, class: 'form-control', disabled: @disabled %>
+        <%= f.datetime_local_field :started_at, class: 'form-control', required: true, disabled: @disabled %>
       </div>
       <div class="form-group">
         <%= f.label :ended_at, '終了' %>
-        <%= f.time_field :ended_at, class: 'form-control', disabled: @disabled %>
+        <%= f.time_field :ended_at, class: 'form-control', required: true, disabled: @disabled %>
       </div>
     </div>
   </div>
 
   <div class="form-group">
     <%= f.label :name, '教室名' %>
-    <%= f.text_field :name, class: 'form-control', disabled: @disabled %>
+    <%= f.text_field :name, class: 'form-control', required: true, disabled: @disabled %>
   </div>
   <div class="form-group">
     <%= f.label :remarks, '連絡事項（１００文字まで）' %>
