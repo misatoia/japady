@@ -9,9 +9,9 @@
 
 # 管理者
 admins = [
-    {name: "煌木太郎", nickname: "太郎", email: "taro@techacademy.jp", \
+    {name: "煌木太郎", nickname: "太郎", email: "taro@example.jp", \
         area_of_residence: "中央地区", purpose: "団体を支援する"},
-    {name: "煌木三郎", nickname: "三郎", email: "saburo@techacademy.jp", \
+    {name: "煌木三郎", nickname: "三郎", email: "saburo@example.jp", \
         area_of_residence: "中央地区２", purpose: "兄を支援する"},
 ]
 admins.each do | user |

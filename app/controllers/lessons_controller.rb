@@ -42,8 +42,8 @@ class LessonsController < ApplicationController
     @title = '教室情報 作成 / New lesson'
 
     default_time = Time.zone.now
-    @lesson.started_at = (default_time + 60 * 60).strftime(('%Y-%m-%d %H:00'))
-    @lesson.ended_at = (default_time + 2 * 60 * 60).strftime('%H:00')
+    @lesson.started_at = (default_time + 1.hours).strftime(('%Y-%m-%d %H:00'))
+    @lesson.ended_at = (default_time + 2.hours).strftime('%H:00')
 
     render 'edit'
   end
@@ -63,12 +63,15 @@ class LessonsController < ApplicationController
 
   def create
     @lesson = current_user.lessons.build(lesson_params)
-
-    if @lesson.save
-      flash[:success] = 'レッスン情報を作成しました。'
+    
+    if @lesson.started_at < Time.zone.now
+      flash.now[:danger] = '過去の日付では作成できません。'
+      render 'edit'
+    elsif @lesson.save
+      flash[:success] = '教室情報を作成しました。'
       redirect_to edit_lesson_path(@lesson)
     else
-      flash.now[:danger] = 'レッスン情報を作成できませんでした。'
+      flash.now[:danger] = '教室情報を作成できませんでした。'
       render 'edit'
     end
   end
@@ -80,18 +83,22 @@ class LessonsController < ApplicationController
       duplicated_lesson = current_user.lessons.new(
         name: "#{@lesson.name} コピー",
         remarks: @lesson.remarks,
-        started_at: @lesson.started_at,
-        ended_at: @lesson.ended_at
+        started_at: @lesson.started_at + 7.days,
+        ended_at: @lesson.ended_at + 7.days
       )
       duplicated_lesson.save
-      flash[:success] = 'レッスン情報を複製しました。'
+      flash[:success] = '複製元の1週間後の日付で教室情報を複製しました。'
       redirect_to edit_lesson_path duplicated_lesson
 
     else
       if @lesson.update(lesson_params)
-        flash[:success] = 'レッスン情報を更新しました。'
+        if @lesson.started_at < Time.zone.now
+          flash[:danger] = '過去の日付には更新できません。'
+        else
+          flash[:success] = '教室情報を更新しました。'
+        end
       else
-        flash.now[:danger] = 'レッスン情報を更新できませんでした。'
+        flash[:danger] = '教室情報を更新できませんでした。'
       end
       redirect_back(fallback_location: dashboard_path)
     end
@@ -102,11 +109,11 @@ class LessonsController < ApplicationController
 
     if @lesson.attendances.empty?
       @lesson.destroy
-      flash[:success] = 'レッスン情報を削除しました。'
+      flash[:success] = '教室情報を削除しました。'
       redirect_to lessons_path
     else
       # 出席者がいたら削除しない
-      flash[:danger] = 'レッスン情報を削除できませんでした。'
+      flash[:danger] = '教室情報を削除できませんでした。'
       redirect_back(fallback_location: dashboard_path)
     end
   end
@@ -122,4 +129,10 @@ class LessonsController < ApplicationController
 
     redirect_back(fallback_location: dashboard_path)
   end
+  
+  def get_default_datetime
+    started_at = Time.new(Time.zone.now.strftime('%Y-%m-%d %H:00')) + 1.hours
+    return started_at, started_at + 2.hours
+  end
+
 end

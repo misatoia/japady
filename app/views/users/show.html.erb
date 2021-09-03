@@ -81,7 +81,7 @@
 
   <% if add_members? %>
     <div class="mt-3">
-      <% if @user.member? && @authorizer %>
+      <% if @user.member && !@user.manager && !@user.admin %>
         <%= form_with(model: @user, local: true, method: :put,  data: { confirm: "[確認]本当に非正規ユーザーとしますか？" } )  do |f| %>
           <%= hidden_field_tag :authorized_by_id, '' %>
           <%= hidden_field_tag :member, 'false' %>
@@ -90,7 +90,7 @@
         <small>
           <%= "承認者：#{@authorizer.nickname}　承認日時：#{@user.authorized_at.strftime("%Y-%m-%d %H:%M:%S")}" if @authorizer %>
         </small>
-      <% else %>
+      <% elsif !@user.member %>
         <%= form_with(model: @user, local: true, method: :put,  data: { confirm: "[確認]正規ユーザーとして承認しますか？正規ユーザーはレッスン、他のユーザー、他の人のノートを閲覧できるようになります。" } )  do |f| %>
           <%= hidden_field_tag :authorized_by_id, current_user.id %>
           <%= hidden_field_tag :member, 'true' %>
