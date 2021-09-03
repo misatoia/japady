@@ -3,13 +3,15 @@
     <%= f.label :held_on, '実施日時' %>
     <div class="input-group">
       <div class="form-group">
+        <% min_datetime = lesson.created_at.nil? ? Time.zone.now : lesson.started_at %>
         <%= f.label :started_at, '開始' %>
-        <%= f.datetime_local_field :started_at, class: 'form-control', required: true, disabled: @disabled %>
+        <%= f.datetime_local_field :started_at, class: 'form-control', min: min_datetime.strftime('%Y-%m-%d %H:%M'), required: true, disabled: @disabled %>
       </div>
       <div class="form-group">
         <%= f.label :ended_at, '終了' %>
-        <%= f.time_field :ended_at, class: 'form-control', required: true, disabled: @disabled %>
+        <%= f.time_field :ended_at, class: 'form-control', required: true, min: (min_datetime + 1.minutes).strftime('%H:%M'), disabled: @disabled %>
       </div>
+      <small>遡った日時を指定することはできません。</small>
     </div>
   </div>
 
