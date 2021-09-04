@@ -7,7 +7,7 @@
 
     <div class="mt-3">
       <%= form_with(model: @note, local: true, method: :delete, data: { confirm: "[確認]ノートを削除します。この操作は元に戻せません。よろしいですか。" }) do |f| %>
-        <%= f.submit 'このノートを削除する/Delete this note', class: 'btn btn-danger btn-block', disabled: (@note.likes.size + @note.favorites.size > 0 ) && !edit_othernotes? %>
+        <%= f.submit 'このノートを削除する/Delete this note', class: 'btn btn-danger btn-block', disabled: (@note.likes.size + @note.favorites.size > 0 ) && !edit_other_notes? %>
         <small class="">いいね又はお気に入りをされている場合は削除できません。</small>
       <% end %>
     </div>

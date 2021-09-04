@@ -32,7 +32,7 @@ class UsersController < ApplicationController
       @managers_count = all_managers.size
     end
 
-    if view_otherusers?
+    if view_other_users?
       all_users = User.where(member: true, manager: [nil, false])
       order_query_for_null = ENV['RAILS_ENV'] == 'production' ? ' NULLS LAST' : ''
 
@@ -61,7 +61,7 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
-    if view_otherusers?
+    if view_other_users?
       @title = "#{@user.nickname}さんのプロフィール / #{@user.nickname}'s profile"
 
       @following_members = @user.followings.where(manager: [false, nil], member: true)
@@ -80,7 +80,7 @@ class UsersController < ApplicationController
   def edit
     @user = User.find(params[:id])
     @title = "#{@user.nickname}さんのプロフィール編集"
-    return if @user && (current_user == @user || edit_profiles?)
+    return if @user && (current_user == @user || edit_other_profiles?)
 
     redirect_to dashboard_path
   end
@@ -157,16 +157,17 @@ class UsersController < ApplicationController
       flash[:success] = '退会しました。'
       redirect_to root_path
 
-    # 人のプロフィール、かつプロフィール編集権限を持ち、かつその人が管理者ではない。
-    elsif (current_user != @user) && edit_profiles? && !@user.admin
+    # 自分のプロフィールではない、かつ対象が管理者ではない、かつ自分がプロフィール編集権限を持つ。
+    elsif (current_user != @user) && !@user.admin && delete_other_profiles? 
       msg = []
       authorized_members = User.where(authorized_by_id: @user.id)
-      authorized_members.each do |member|
-        member.update(member: false)
-        msg.push "#{member.id}: #{member.nickname}さん"
+      if authorized_members.any?
+        authorized_members.each do |member|
+          member.update(authorized_by_id: current_user.id)
+          msg.push "#{member.id}: #{member.nickname}さん"
+        end
+        flash[:warning] = "【重要】#{@user.nickname}さんが承認した#{msg.join('、')}の承認者を引き継ぎました。" if msg
       end
-      flash[:warning] = "【重要】#{msg.join('、')}のユーザー権限を一時的に無効にしました。正しいユーザーであることが確認できたらそれぞれのプロフィール画面で再度ユーザー承認をしてください。" if msg
-
       flash[:success] = "#{@user.nickname} さんのプロフィールを削除しました。"
 
       @user.destroy
@@ -228,7 +229,7 @@ class UsersController < ApplicationController
 
   def attended
     @user = User.find(params[:id])
-    if view_attendedlessons? || @user == current_user
+    if view_attended_lessons? || @user == current_user
       @title = "#{@user != current_user ? "#{@user.nickname}さんが" : ''}これまで出席した教室"
       @lessons = @user.attending_lessons.where('started_at <= ?', Time.zone.now)
                       .order(started_at: :desc).page(params[:page]).per(10)

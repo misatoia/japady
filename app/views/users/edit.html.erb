@@ -64,7 +64,7 @@
         <%= form_with(model: @user, local: true, method: :delete,  data: { confirm: "[確認]#{@user.nickname}さんのプロフィールとノートを削除します。この操作は元に戻せません。よろしいですか。" } )  do |f| %>
           <%= f.submit 'プロフィールを削除（退会）/ delete profile ', class: 'btn btn-danger btn-block', disabled: @user.admin || @user.manager? %>
         <% end %>
-        <small>教室代表または管理者のプロフィールは削除できません。</small>
+        <div class="small">教室代表または管理者のプロフィールは削除できません。</div>
     
     </div>
 

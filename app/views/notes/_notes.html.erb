@@ -34,7 +34,7 @@
           </div>
   
           <div class="ml-auto text-right">
-            <% if note.user == current_user || edit_othernotes? %>
+            <% if note.user == current_user || edit_other_notes? %>
               <%= link_to edit_note_path(note), class: 'btn btn-sm btn-light' do %>
                 <i class="fas fa-edit"></i> 編集する
               <% end %>

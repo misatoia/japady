@@ -47,7 +47,7 @@ class NotesController < ApplicationController
     @title = 'ノートの編集 / Edit note'
 
     # 権限チェック
-    return if @note.user == current_user || edit_othernotes?
+    return if @note.user == current_user || edit_other_notes?
 
     redirect_back(fallback_location: dashboard_path)
   end

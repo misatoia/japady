@@ -23,7 +23,7 @@ module SessionsHelper
     member? || manager? || admin?
   end
 
-  def edit_othernotes?
+  def edit_other_notes?
     admin?
   end
   
@@ -43,7 +43,7 @@ module SessionsHelper
     manager? || admin?
   end
 
-  def edit_otherlessons?
+  def edit_other_lessons?
     admin?
   end
 
@@ -51,7 +51,7 @@ module SessionsHelper
     admin?
   end
 
-  def view_otherusers?
+  def view_other_users?
     member? || manager? || admin?
   end
 
@@ -59,11 +59,15 @@ module SessionsHelper
     manager? || admin?
   end
 
-  def edit_profiles?
+  def edit_other_profiles?
+    admin?
+  end
+  
+  def delete_other_profiles?
     admin?
   end
 
-  def view_attendedlessons?
+  def view_attended_lessons?
     manager? || admin?
   end
 

@@ -57,7 +57,7 @@ class LessonsController < ApplicationController
     @attendees.insert(0, ['出席者を選択', '']) if @attendees.any?                 
     @attendance = Attendance.new
 
-    @disabled = !((current_user == @lesson.user) || edit_otherlessons?)
+    @disabled = !((current_user == @lesson.user) || edit_other_lessons?)
   end
 
   def create
