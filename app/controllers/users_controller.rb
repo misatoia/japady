@@ -190,7 +190,7 @@ class UsersController < ApplicationController
       flash[:success] = 'ユーザーを登録しました。'
       # begin session
       session[:user_id] = @user.id
-      redirect_to @user
+      redirect_to dashboard_path
     else
       flash.now[:danger] = 'ユーザの登録に失敗しました。'
       render :new

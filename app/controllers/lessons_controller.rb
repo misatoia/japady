@@ -30,7 +30,7 @@ class LessonsController < ApplicationController
                  .where(users: { manager: true })
                  .page(params[:page]).per(10)
 
-      render 'index'
+      render :index
 
     else
       redirect_to dashboard_path
@@ -65,16 +65,16 @@ class LessonsController < ApplicationController
 
     if @lesson.started_at < Time.zone.now
       flash.now[:danger] = '過去の日付では作成できません。'
-      render 'new'
+      render :new
     elsif @lesson.ended_at <= @lesson.started_at
       flash.now[:danger] = '終了時刻は開始時刻の後に設定してください。'
-      render 'new'
+      render :new
     elsif @lesson.save
       flash[:success] = '教室情報を作成しました。'
       redirect_to edit_lesson_path @lesson
     else
       flash.now[:danger] = '教室情報を作成できませんでした。'
-      render 'new'
+      render :new
     end
   end
 

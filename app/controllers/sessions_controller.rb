@@ -109,7 +109,7 @@ class SessionsController < ApplicationController
           # begin session
           session[:user_id] = user.id
 
-          redirect_to user
+          redirect_to dashboard_path
         else
           @mydata = user_info['id', 'name', 'email']
 
