@@ -39,6 +39,8 @@ class ToppagesController < ApplicationController
                           .limit(@num_of_top_likes)
 
       @following_notes = current_user.followings.map(&:latest_note).compact
+    else
+      @favorite_notes = current_user.favorite_notes.where(user_id: current_user.id).order(updated_at: :desc)
     end
 
     @mynotes = current_user.notes.order(updated_at: :desc).where('created_at > ?', Time.zone.now.ago(@days_of_recent.days))
