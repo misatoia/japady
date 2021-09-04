@@ -28,8 +28,6 @@ class NotesController < ApplicationController
   def new
     @note = current_user.notes.new
     @title = '新規ノート作成 / New note'
-    
-    render 'edit'
   end
 
   def create
@@ -68,7 +66,7 @@ class NotesController < ApplicationController
     @note = Note.find(params[:id])
 
     # いいねがあったら削除しない
-    if edit_othernotes? || (@note.user == current_user && @note.likes.empty?)
+    if force_delete_notes? || (@note.user == current_user && @note.likes.empty?)
       @note.destroy
       flash[:success] = 'ノートを削除しました。'
       redirect_to notes_path

@@ -5,28 +5,24 @@
     
     <%= render 'note_form', note: @note %>
 
-    <% if !@note.created_at.nil? %>
-      <div class="mt-3">
-        <%= form_with(model: @note, local: true, method: :delete, data: { confirm: "[確認]ノートを削除します。この操作は元に戻せません。よろしいですか。" }) do |f| %>
-          <%= f.submit 'このノートを削除する/Delete this note', class: 'btn btn-danger btn-block', disabled: (@note.likes.size + @note.favorites.size > 0 ) && !edit_othernotes? %>
-          <small class="">いいね又はお気に入りをされている場合は削除できません。</small>
-        <% end %>
-      </div>
-    <% end %>
-  
+    <div class="mt-3">
+      <%= form_with(model: @note, local: true, method: :delete, data: { confirm: "[確認]ノートを削除します。この操作は元に戻せません。よろしいですか。" }) do |f| %>
+        <%= f.submit 'このノートを削除する/Delete this note', class: 'btn btn-danger btn-block', disabled: (@note.likes.size + @note.favorites.size > 0 ) && !edit_othernotes? %>
+        <small class="">いいね又はお気に入りをされている場合は削除できません。</small>
+      <% end %>
+    </div>
+
   </div>
   <div class="col-sm-4 p-4">
-    <% if !@note.created_at.nil? %>
-      <div>
-        <i class="far fa-thumbs-up"></i> <%= "#{@note.likes.size}人" %>
-      </div>
-      <div>
-        <%= @note.favorites.size > 0 ? "★ #{@note.favorites.size}人" : "" %>
-      </div>
-      <div class="mt-5">
-        <div><%= "#{@note.created_at.strftime("%Y-%m-%d %H:%M")} 作成" %></div>
-        <div><%= "#{@note.updated_at.strftime("%Y-%m-%d %H:%M")} 更新" %></div>
-      </div>
-    <% end %>
+    <div>
+      <i class="far fa-thumbs-up"></i> <%= "#{@note.likes.size}人" %>
+    </div>
+    <div>
+      <%= @note.favorites.size > 0 ? "★ #{@note.favorites.size}人" : "" %>
+    </div>
+    <div class="mt-5">
+      <div><%= "#{@note.created_at.strftime("%Y-%m-%d %H:%M")} 作成" %></div>
+      <div><%= "#{@note.updated_at.strftime("%Y-%m-%d %H:%M")} 更新" %></div>
+    </div>
   </div>
 </div>

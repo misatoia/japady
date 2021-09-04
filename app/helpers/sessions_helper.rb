@@ -26,6 +26,10 @@ module SessionsHelper
   def edit_othernotes?
     admin?
   end
+  
+  def force_delete_notes?
+    admin?
+  end
 
   def make_announce?
     manager? || admin?
@@ -40,6 +44,10 @@ module SessionsHelper
   end
 
   def edit_otherlessons?
+    admin?
+  end
+
+  def force_delete_lessons?
     admin?
   end
 

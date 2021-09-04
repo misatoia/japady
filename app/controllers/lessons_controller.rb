@@ -44,8 +44,6 @@ class LessonsController < ApplicationController
     default_time = Time.zone.now
     @lesson.started_at = (default_time + 1.hours).strftime('%Y-%m-%d %H:00')
     @lesson.ended_at = (default_time + 2.hours).strftime('%H:00')
-
-    render 'edit'
   end
 
   def edit
@@ -105,7 +103,7 @@ class LessonsController < ApplicationController
   def destroy
     @lesson = Lesson.find(params[:id])
 
-    if @lesson.attendances.empty?
+    if force_delete_lessons? || (@lesson.user == current_user && @lesson.attendances.empty?)
       @lesson.destroy
       flash[:success] = '教室情報を削除しました。'
       redirect_to lessons_path
