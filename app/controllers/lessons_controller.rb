@@ -54,6 +54,7 @@ class LessonsController < ApplicationController
                 .where(member: true, manager: true).pluck(:nickname, :id)
     @attendees = User
                  .where.not(id: Attendance.where(lesson_id: params[:id]).pluck(:user_id)).pluck(:nickname, :id)
+    @attendees.insert(0, ['出席者を選択', '']) if @attendees.any?                 
     @attendance = Attendance.new
 
     @disabled = !((current_user == @lesson.user) || edit_otherlessons?)
@@ -64,15 +65,16 @@ class LessonsController < ApplicationController
 
     if @lesson.started_at < Time.zone.now
       flash.now[:danger] = '過去の日付では作成できません。'
-      render 'edit'
+      render 'new'
     elsif @lesson.ended_at <= @lesson.started_at
       flash.now[:danger] = '終了時刻は開始時刻の後に設定してください。'
+      render 'new'
     elsif @lesson.save
       flash[:success] = '教室情報を作成しました。'
-      redirect_to edit_lesson_path(@lesson)
+      redirect_to edit_lesson_path @lesson
     else
       flash.now[:danger] = '教室情報を作成できませんでした。'
-      render 'edit'
+      render 'new'
     end
   end
 
@@ -91,12 +93,15 @@ class LessonsController < ApplicationController
       redirect_to edit_lesson_path duplicated_lesson
 
     else
-      if @lesson.update(lesson_params)
+      updated_lesson = Lesson.new(lesson_params)
+      if updated_lesson.ended_at <= updated_lesson.started_at
+        flash[:danger] = '終了時刻は開始時刻の後に設定してください。'
+      elsif @lesson.update(lesson_params)
         flash[:success] = '教室情報を更新しました。'
       else
         flash[:danger] = '教室情報を更新できませんでした。'
       end
-      redirect_back(fallback_location: dashboard_path)
+      redirect_to edit_lesson_path @lesson
     end
   end
 
@@ -125,6 +130,4 @@ class LessonsController < ApplicationController
 
     redirect_back(fallback_location: dashboard_path)
   end
-  
-
 end

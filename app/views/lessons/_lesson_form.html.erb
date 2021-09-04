@@ -1,6 +1,6 @@
 <%= form_with(model: lesson, local: true) do |f| %>
   <div class="form-group">
-    <%= f.label :held_on, '実施日時' %>
+    実施日時
     <div class="input-group">
       <div class="form-group">
         <%= f.label :started_at, '開始' %>
@@ -10,7 +10,7 @@
         <%= f.label :ended_at, '終了' %>
         <%= f.time_field :ended_at, class: 'form-control', required: true, min: (min(@lesson.started_at) + 1.minutes).strftime('%H:%M'), disabled: @disabled %>
       </div>
-      <small>遡った日時を指定することはできません。</small>
+      <div class="small">遡った日時を指定することはできません。</div>
     </div>
   </div>
 

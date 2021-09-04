@@ -2,14 +2,14 @@
 
     <img class="img-fluid mx-auto rounded d-block" src="<%= gravatar_url(@user, { size: 200 }) %>" alt=""> 
 
-    <div class="text-center"><small>
+    <div class="text-center small">
       <div>ユーザー登録日： <%= @user.created_at.strftime("%Y-%m-%d %H:%M:%S") %></div>
       <span class="text-danger"><%= '[未承認ユーザー]' if !@user.member %></span>
       <span><%= '[教室代表]' if @user.manager %></span>
       <span><%= '[管理者]' if @user.admin && @current_user.admin %></span>
-    </small></div>
+    </div>
 
-    <p>
+    <div>
       <div>名前/name</div>
       <div class="px-3"><%= simple_format(@user.name) %></div>
   
@@ -24,11 +24,11 @@
   
       <div>日本語を学ぶ目的（もくてき）、動機（どうき）、目標（もくひょう）など<br /> / Purpose, reasons, or goal of learning</div>
       <div class="px-3"><%= simple_format(@user.purpose) %></div>
-    </p>
+    </div>
 
     <hr />
 
-    <p>
+    <div>
       <div class="mt-3"><%= link_to 'ノートを見る', notes_user_path %></div>
       <% if view_attendedlessons? || @user == current_user %>
         <div class="mt-3"><%= link_to 'これまでに出席した教室を見る', attended_user_path %></div>
@@ -36,11 +36,11 @@
       <% if view_lessons? && @user.manager %>
         <div class="mt-3"><%= link_to '開催教室を見る', lessons_user_path %></div>
       <% end %>
-    </p>
+    </div>
 
     <hr />
 
-    <p>
+    <div>
       <% if view_lessons? && @following_managers.any? %>
         <div class="mt-3">フォロー中の教室代表</div>
         <div class="px-3">
@@ -58,7 +58,7 @@
           <% end %>                        
         </div>
       <% end %>
-    </p>
+    </div>
 
 </div>
 

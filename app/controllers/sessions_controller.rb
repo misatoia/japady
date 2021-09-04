@@ -6,7 +6,7 @@ class SessionsController < ApplicationController
     password = params[:session][:password]
 
     if login(email, password)
-      redirect_to @user
+      redirect_to dashboard_path
     else
       flash.now[:danger] = 'ログインに失敗しました'
       render :new
