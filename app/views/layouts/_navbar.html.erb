@@ -9,31 +9,31 @@
     <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
       <ul class="navbar-nav">
         <li class="nav-item dropdown">
-          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">ノート/notes</a>
+          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">ノート/Notes</a>
           <div class="dropdown-menu dropdown-menu-right">
             <%= link_to '自分のノート/My notes', notes_user_path(current_user), class: "dropdown-item" %>
             <% if view_othernotes?  %>
             <%= link_to '他の人のノート/Other members\' notes ', notes_path, class: "dropdown-item" %>
             <% end %>
             <div class="dropdown-divider"></div>
-            <%= link_to '新規作成', new_note_path, class: "dropdown-item" %>
+            <%= link_to '新規作成/New note', new_note_path, class: "dropdown-item" %>
           </div>
         </li>
 
         <% if view_lessons?  %>
         <li class="nav-item dropdown">
-          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">教室/lessons</a>
+          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">教室/Lessons</a>
           <div class="dropdown-menu dropdown-menu-right">
-            <%= link_to '予定されている教室/coming lessons', coming_lessons_path, class: "dropdown-item" %>
+            <%= link_to '予定されている教室/Coming lessons', coming_lessons_path, class: "dropdown-item" %>
             <% if view_lessons? && !edit_lessons? %>
-              <%= link_to '出席した教室/attended lessons', attended_user_path(current_user), class: "dropdown-item" %>
+              <%= link_to '出席した教室/Attended lessons', attended_user_path(current_user), class: "dropdown-item" %>
             <% elsif edit_lessons? %>
-              <%= link_to '開催する（した）教室/hosting lessons', lessons_user_path(current_user), class: "dropdown-item" %>
+              <%= link_to '開催する（した）教室/Hosting lessons', lessons_user_path(current_user), class: "dropdown-item" %>
             <% end %>
-            <%= link_to 'すべての教室/all lessons', lessons_path, class: "dropdown-item" %>
+            <%= link_to 'すべての教室/All lessons', lessons_path, class: "dropdown-item" %>
             <% if edit_lessons? %>
               <div class="dropdown-divider"></div>
-              <%= link_to '新規作成', new_lesson_path, method: :get, class: "dropdown-item" %>
+              <%= link_to '新規作成/New lesson', new_lesson_path, method: :get, class: "dropdown-item" %>
               <% end %>
           </div>
         </li>
@@ -41,19 +41,19 @@
 
         <% if view_otherusers? %>
         <li class="nav-item">
-            <a class="nav-link" href="<%= users_path %>">メンバー一覧/Member List</a>
+          <%= link_to "メンバー一覧/Member List", users_path, class: "nav-link" %>
         </li>
         <% end %>
 
         <li class="nav-item dropdown">
           <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"><%= current_user.nickname %></a>
           <div class="dropdown-menu dropdown-menu-right">
-            <%= link_to 'このサイトについて', about_path, class: "dropdown-item" %>
-            <%= link_to 'プライバシーポリシー', privacypolicy_path, class: "dropdown-item" %>
+            <%= link_to 'このサイトについて/About', about_path, class: "dropdown-item" %>
+            <%= link_to 'プライバシーポリシー/Privacy policy', privacypolicy_path, class: "dropdown-item" %>
             <div class="dropdown-divider"></div>
-            <%= link_to 'ダッシュボード', dashboard_path, class: "dropdown-item" %>
-            <%= link_to 'プロフィール', user_path(current_user), class: "dropdown-item" %>
-            <%= link_to 'Logout', logout_path, method: :delete, class: "dropdown-item" %>
+            <%= link_to 'ダッシュボード/Dashboard', dashboard_path, class: "dropdown-item" %>
+            <%= link_to 'プロフィール/Profile', user_path(current_user), class: "dropdown-item" %>
+            <%= link_to 'ログアウト/Logout', logout_path, method: :delete, class: "dropdown-item" %>
           </div>
         </li>
     
