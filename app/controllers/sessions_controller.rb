@@ -34,11 +34,4 @@ class SessionsController < ApplicationController
     true
   end
 
-  def delete_facebook_session
-    session[:fb_uid] = nil
-    session[:fb_user_token] = nil
-    session[:fb_token_expires_in] = nil
-    session[:fb_state] = nil
-    session[:fb_reauth] = nil
-  end
 end
